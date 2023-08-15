@@ -26,29 +26,37 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
 
 apply_station_name_change <- function(station_name, depl_date, new_value) {
   # TODO: Declare status variables for each change in one place?
+  
   # Update String Tracking Sheet
   # Write old station name into old station name column, appending if there is already a value there
   is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "old station name", station_name, append=TRUE)
   # Replace old station name in station column
   is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "station", new_value)
   completion_record <- c(is_old_name_archived && is_old_name_replaced)
+  
   # TODO: Update Station Folder
   is_station_folder_updated <- FALSE
   completion_record <- c(completion_record, is_station_folder_updated)
+  
   # TODO: Update Deployment Folder
   is_depl_folder_updated <- FALSE
   completion_record <- c(completion_record, is_depl_folder_updated)
+  
   # TODO: Update README (at station folder level)
   is_readme_updated <- FALSE
   completion_record <- c(completion_record, is_readme_updated)
-  # TODO: Update Config Table
-  is_config_table_updated <- FALSE
-  completion_record <- c(completion_record, is_config_table_updated)
+  
+  # TODO: Update Log
   # TODO: Update Log Content
   is_log_content_updated <- FALSE
   # TODO: Update Log Name
   is_log_name_updated <- FALSE
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
+  
+  # TODO: Update Config Table
+  is_config_table_updated <- FALSE
+  completion_record <- c(completion_record, is_config_table_updated)
+  
   return(completion_record)
 }
 
@@ -77,8 +85,8 @@ apply_retrieval_date_change <- function() {
   # Update Station Folder N/A
   # TODO: Update README (at deployment folder level)
   # Update Deployment Folder N/A
-  # Update Config Table N/A
   # TODO: Update Log Content
+  # Update Config Table N/A
   return(completion_record)
 }
 
@@ -87,8 +95,8 @@ apply_waterbody_change <- function() {
   # Update Station Folder N/A
   # TODO: Update README (at station folder level)
   # Update Deployment Folder N/A
-  # TODO: Update Config Table
   # TODO: Update Log Content
+  # TODO: Update Config Table
   return(completion_record)
 }
 
