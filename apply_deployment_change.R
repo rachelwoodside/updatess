@@ -34,24 +34,24 @@ apply_station_name_change <- function(station_name, depl_date, new_value) {
   is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "station", new_value)
   completion_record <- c(is_old_name_archived && is_old_name_replaced)
   
-  # TODO: Update Station Folder
-  is_station_folder_updated <- FALSE
-  completion_record <- c(completion_record, is_station_folder_updated)
-  
-  # TODO: Update Deployment Folder
-  is_depl_folder_updated <- FALSE
-  completion_record <- c(completion_record, is_depl_folder_updated)
-  
-  # TODO: Update README (at station folder level)
-  is_readme_updated <- FALSE
-  completion_record <- c(completion_record, is_readme_updated)
-  
   # TODO: Update Log
   # TODO: Update Log Content
   is_log_content_updated <- FALSE
   # TODO: Update Log Name
   is_log_name_updated <- FALSE
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
+  
+  # TODO: Update README (at station folder level)
+  is_readme_updated <- FALSE
+  completion_record <- c(completion_record, is_readme_updated)
+  
+  # TODO: Update Deployment Folder
+  is_depl_folder_updated <- FALSE
+  completion_record <- c(completion_record, is_depl_folder_updated)
+  
+  # TODO: Update Station Folder
+  is_station_folder_updated <- FALSE
+  completion_record <- c(completion_record, is_station_folder_updated)
   
   # TODO: Update Config Table
   is_config_table_updated <- FALSE
@@ -64,38 +64,45 @@ apply_station_name_change <- function(station_name, depl_date, new_value) {
 
 apply_deployment_date_change <- function(station_name, depl_date, new_value) {
   completion_record <- c()
+  
   # TODO: Update String Tracking
   completion_record <- c(completion_record, FALSE)
-  # Update Station Folder N/A
-  completion_record <- c(completion_record, "N/A")
-  # TODO: Update README (at deployment folder level)
-  completion_record <- c(completion_record, FALSE)
-  # TODO: Update Deployment Folder
-  completion_record <- c(completion_record, FALSE)
-  # TODO: Update Config Table
-  completion_record <- c(completion_record, FALSE)
+  
   # TODO: Update Log Content
   # TODO: Update Log Name
   completion_record <- c(completion_record, FALSE)
+  
+  # TODO: Update README (at deployment folder level)
+  completion_record <- c(completion_record, FALSE)
+  
+  # TODO: Update Deployment Folder
+  completion_record <- c(completion_record, FALSE)
+  
+  # Update Station Folder N/A
+  completion_record <- c(completion_record, "N/A")
+
+  # TODO: Update Config Table
+  completion_record <- c(completion_record, FALSE)
+
   return(completion_record)
 }
 
 apply_retrieval_date_change <- function() {
   # Update String Tracking N/A
-  # Update Station Folder N/A
+  # TODO: Update Log Content
   # TODO: Update README (at deployment folder level)
   # Update Deployment Folder N/A
-  # TODO: Update Log Content
+  # Update Station Folder N/A
   # Update Config Table N/A
   return(completion_record)
 }
 
 apply_waterbody_change <- function() {
   # TODO: Update String Tracking
-  # Update Station Folder N/A
+  # TODO: Update Log Content
   # TODO: Update README (at station folder level)
   # Update Deployment Folder N/A
-  # TODO: Update Log Content
+  # Update Station Folder N/A
   # TODO: Update Config Table
   return(completion_record)
 }
