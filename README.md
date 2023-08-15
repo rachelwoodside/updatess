@@ -1,2 +1,2 @@
 # updatess
- Apply updates to sensorstrings deployments
+ Apply updates to sensorstrings deployment metadata
