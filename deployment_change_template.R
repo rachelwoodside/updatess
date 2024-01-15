@@ -13,6 +13,7 @@ station_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/proje
 #string_tracking_sheet <- drive_get("STRING TRACKING")
 string_tracking_sheet <- drive_get("TestSheetForCodeModification")
 change_tracking_sheet <- drive_get("Deployment Change Tracking")
+config_table_folder_path <- "R:/tracking_sheets"
 
 # MODIFY HERE!! -------------------------------------------------------------
 

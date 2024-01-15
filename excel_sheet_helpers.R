@@ -103,3 +103,34 @@ updated_log_data <- update_log_data("R:/program_documents/cmp_hiring/intern/2023
                 "Location_Description",
                 "Birchy Head",
                 "Birchy Head 1")
+
+#check_for_config_table_entry <- function(station_name, deployment_date) {
+  config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_config_tables")
+  config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
+  cb_config_table_file <- glue("{config_table_file_path}/water_quality_cape_breton_configuration.xlsx")
+  config_data <- read_log_data(config_table_file, "xlsx")
+  cb_config_data <- read_log_data(cb_config_table_file, "xlsx")
+  # Check for entry in cape breton configuration table
+  cb_config_entry <- nrow(cb_config_data %>% filter(Station_Name == "Birchy Head" & Depl_Date == ymd("2018-02-20"))) == 1
+  # Check for entry in configuration table
+  config_table_entry <- nrow(config_data %>% filter(Station_Name == "Birchy Head" & Depl_Date == ymd("2018-02-20"))) == 1
+  if (cb_config_entry) {
+    date_formatted_cb_config_data <- cb_config_data %>% 
+                                      mutate(Depl_Date = ymd(Depl_Date))
+    updated_cb_config_data <- date_formatted_cb_config_data %>%
+                              mutate(Station_Name = case_when((Station_Name == "Birchy Head" & Depl_Date == ymd("2018-02-20")) ~ "new_thing",
+                                                              .default = Station_Name))
+    # TODO: Write updated cb config table to file
+  } else if (config_table_entry) {
+    date_formatted_config_data <- config_data %>% 
+                                  mutate(Depl_Date = ymd(Depl_Date))
+    updated_config_data <- date_formatted_config_data %>%
+                            mutate(Station_Name = case_when((Station_Name == "Birchy Head" & Depl_Date == ymd("2018-02-20")) ~ "new_thing",
+                                                            .default = Station_Name))
+    # TODO: Write updated config table to file
+  } else {
+    # TODO: 
+    #message("No entry found in configuration table or Cape Breton configuration table")
+  }
+  
+#}
