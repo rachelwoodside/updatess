@@ -90,6 +90,7 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
                               mutate(Deployment = ymd(Deployment)) %>%
                               mutate(Retrieval = ymd(Retrieval))
   # TODO: Check that the log value is in fact the provided old value to make sure we are looking at the right column?
+  # TODO: Type checking (during testing I replaced a string with a date and had to switch it back manually through the log)
   updated_log_data <- date_formatted_log_data %>% 
                       mutate_at(vars(column_to_update), ~ replace(., TRUE, new_value))
   # write new data to log file 
@@ -97,21 +98,8 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
   return(log_data)
 }
 
-# Error occurring with mutate when working with .xlsx log file and trying to write dates (Deployment column)
-# Can write changes to text successfully, but overwrites dates with weird format
-deployment_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2022-05-12"
-log_file_name <- extract_log_file_name(deployment_folder_path)
-log_file_extension <- extract_file_extension(log_file_name)
-log_data <- read_log_data(log_file_name, log_file_extension)
-date_formatted_log_data <- log_data %>% 
-                            mutate(Deployment = ymd(Deployment)) %>%
-                            mutate(Retrieval = ymd(Retrieval))
-updated_log_data <- date_formatted_log_data %>%
-                    mutate_at(vars("Deployment"), ~ replace(., TRUE, "2022-05-12"))
-write_log_data(updated_log_data, log_file_name, log_file_extension)
-
 # testing update_log_data
-updated_log_data <- update_log_data("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2022-05-12", 
+updated_log_data <- update_log_data("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20", 
                 "Location_Description",
                 "Birchy Head",
                 "Birchy Head 1")
