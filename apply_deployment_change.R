@@ -129,11 +129,13 @@ update_area_info_column <- function(ss, station_name, column_name, new_data, app
 
 
 update_deployment_folder <- function() {
-  # needs: location to look for folder
+  # rename deployment folder
+  # TODO: consider/test how renaming will work if file/folder already exists with same name?
 }
 
 update_config_table <- function() {
-  
+  # TODO: Newer deployments will not be listed in the configuration table
+  # Consider how to manage this (simply ignore and allow user to check manually?)
 }
 
 write_readme_file <- function(file_path, content) {
@@ -161,13 +163,17 @@ write_readme_file <- function(file_path, content) {
   }
 }
 
-update_log <- function() {
-  # generate new log name
-  # modify appropriate log contents
-  
+update_log <- function(station_folder_path, station_name, depl_date) {
+  # access log from file path
+  log_file_path <- paste(get_file_path_to_depl_folder(station_folder_path, station_name, depl_date), sep="/")
+  # create archive folder if necessary
+  # copy log to archive
+  # TODO: consider/test how copying will work if file already exists with same name?
+  # modify not-archived log contents
 }
 
 update_station_folder <- function() {
-  # create new station folder if necessary
-  # move everything!
+  # check for existence of station folder
+  # move everything
+  # TODO: consider/test how moving will work if file/folder already exists with same name?
 }
