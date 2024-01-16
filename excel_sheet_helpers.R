@@ -15,7 +15,6 @@ extract_file_extension <- function(file_name) {
   extension$EXT
 }
 
-# TODO: Expand this to work with the config table as well?
 extract_log_file_name <- function(deployment_folder_path) {
   # Read in log as in ss_read_log.R from sensorstrings package on 2024-01-15
   # extract the name of the log folder (e.g. Log, log, LOG)
@@ -41,42 +40,37 @@ extract_log_file_name <- function(deployment_folder_path) {
   return(glue("{log_path}/{dat_files}"))
 }
 
-read_log_data <- function(log_path, file_type) {
+read_spreadsheet_data <- function(file_path, file_type) {
   if (file_type == "xls" | file_type == "xlsx") {
-    log <- read_excel(log_path, na = c("", "n/a", "N/A"))
+    file <- read_excel(file_path, na = c("", "n/a", "N/A"))
   }
   else if (file_type == "csv") {
-    log <- fread(
-      log_path,
+    file <- fread(
+      file_path,
       data.table = FALSE,
       na.strings = c("", "n/a", "N/A")
     )
   }
   else
   {
-    stop("No .xls, .xlsx, or .csv files found in the Log folder")
+    stop("No .xls, .xlsx, or .csv files found in the specified folder")
   }
-  return(log)
+  return(file)
 }
 
-write_log_data <- function(updated_log_data, log_path, file_type) {
+write_spreadsheet_data <- function(updated_data, file_path, file_type) {
   #writexl currently only supports writing the whole file
   if (file_type == "xls" | file_type == "xlsx") {
-    log <- write_xlsx(updated_log_data, log_path)
+    file <- write_xlsx(updated_data, file_path)
   }
   #fwrite is also currently easiest to use by overwriting the whole file
   else if (file_type == "csv") {
-    log <- fwrite(
-      updated_log_data,
-      log_path
+    file <- fwrite(
+      updated_data,
+      file_path
     )
   }
-  else
-  {
-    stop("No .xls, .xlsx, or .csv files found in the Log folder")
-  }
-  return(log)
-  
+  return(file)
 }
 
 update_log_data <- function(deployment_folder_path, column_to_update, old_value, new_value) {
@@ -85,7 +79,7 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
   # get file type
   log_file_extension <- extract_file_extension(log_file_name)
   # read in log data
-  log_data <- read_log_data(log_file_name, log_file_extension)
+  log_data <- read_spreadsheet_data(log_file_name, log_file_extension)
   date_formatted_log_data <- log_data %>% 
                               mutate(Deployment = ymd(Deployment)) %>%
                               mutate(Retrieval = ymd(Retrieval))
@@ -94,7 +88,7 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
   updated_log_data <- date_formatted_log_data %>% 
                       mutate_at(vars(column_to_update), ~ replace(., TRUE, new_value))
   # write new data to log file 
-  write_log_data(updated_log_data, log_file_name, log_file_extension)
+  write_spreadsheet_data(updated_log_data, log_file_name, log_file_extension)
   return(log_data)
 }
 
@@ -108,8 +102,8 @@ update_config_table_entry <- function(station_name, deployment_date, old_value, 
   config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_config_tables")
   config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
   cb_config_table_file <- glue("{config_table_file_path}/water_quality_cape_breton_configuration.xlsx")
-  config_data <- read_log_data(config_table_file, "xlsx")
-  cb_config_data <- read_log_data(cb_config_table_file, "xlsx")
+  config_data <- read_spreadsheet_data(config_table_file, "xlsx")
+  cb_config_data <- read_spreadsheet_data(cb_config_table_file, "xlsx")
   # Check for entry in cape breton configuration table
   cb_config_entry <- nrow(cb_config_data %>% filter(Station_Name == station_name & Depl_Date == ymd(deployment_date))) == 1
   # Check for entry in configuration table
@@ -120,17 +114,17 @@ update_config_table_entry <- function(station_name, deployment_date, old_value, 
     updated_cb_config_data <- date_formatted_cb_config_data %>%
                               mutate(Station_Name = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
                                                               .default = Station_Name))
-    write_log_data(updated_cb_config_data, cb_config_table_file, "xslx")
+    write_spreadsheet_data(updated_cb_config_data, cb_config_table_file, "xslx")
   } else if (config_table_entry) {
     date_formatted_config_data <- config_data %>% 
                                   mutate(Depl_Date = ymd(Depl_Date))
     updated_config_data <- date_formatted_config_data %>%
                             mutate(Station_Name = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
                                                             .default = Station_Name))
-    write_log_data(updated_config_data, config_table_file, "xlsx")
+    write_spreadsheet_data(updated_config_data, config_table_file, "xlsx")
   } else {
-    # TODO: 
-    message("No entry found in configuration table or Cape Breton configuration table. Skipping configuration table data update. If deployment is from 2023 or earlier, please double-check to confirm it does not have a configuration table entry.")
+    # TODO: Add a check to find similar entries in case of typo?
+    message("No entry found in configuration table. Skipping configuration table data update. If deployment is from 2023 or earlier, please double-check to confirm it does not have a configuration table entry.")
   }
 }
 
