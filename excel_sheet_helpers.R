@@ -5,40 +5,7 @@ library(data.table)
 library(glue)
 library(writexl)
 library(lubridate)
-
-# File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15
-extract_file_extension <- function(file_name) {
-  extension <- file_name %>%
-    data.frame() %>%
-    separate(col = 1, into = c(NA, "EXT"), sep = "\\.")
-  
-  extension$EXT
-}
-
-extract_log_file_name <- function(deployment_folder_path) {
-  # Read in log as in ss_read_log.R from sensorstrings package on 2024-01-15
-  # extract the name of the log folder (e.g. Log, log, LOG)
-  log_folder <- list.files(deployment_folder_path) %>%
-    str_extract(regex("log", ignore_case = TRUE)) %>%
-    na.omit()
-  
-  log_path <- glue("{deployment_folder_path}/{log_folder}")
-  
-  dat_files <- list.files(log_path, all.files = FALSE, pattern = "*xlsx|*xls|*csv")
-  
-  # remove files that start with "~"
-  if (any(substring(dat_files, 1, 1) == "~")) {
-    dat_files <- dat_files[-which(substring(dat_files, 1, 1) == "~")]
-  }
-  
-  if (length(dat_files) > 1) {
-    stop("More than one file found in the Log folder")
-  }
-  else if (length(dat_files) == 0) {
-    stop("No files found in the Log folder")
-  }
-  return(glue("{log_path}/{dat_files}"))
-}
+source("file_system_helpers.R")
 
 read_spreadsheet_data <- function(file_path, file_type) {
   if (file_type == "xls" | file_type == "xlsx") {
