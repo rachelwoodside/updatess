@@ -57,6 +57,10 @@ today_as_yyyy_mm_dd_string <- function() {
   return(format(today(tzone="GMT"), format="%Y-%m-%d"))
 }
 
+construct_new_log_name <- function(station_name, deployment_date) {
+  
+}
+
 create_archive_folder <- function() {
   # TODO: Check if archive folder exists, create if not
 }
@@ -68,8 +72,12 @@ move_file_to_archive_folder <- function() {
 # file.rename docs https://r-lang.com/how-to-rename-a-file-in-r/
 
 # required for station name or deployment date changes
-rename_log <- function() {
-  
+rename_log <- function(log_file_name, new_file_name) {
+  if (file.exists(old_file)) {
+    file.rename(old_file, new_file)
+  } else {
+    cat("The file does not exist")
+  }
 }
 
 # required for station name changes
