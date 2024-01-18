@@ -22,7 +22,7 @@ apply_deployment_change(
   depl_date = "2018-02-20", 
   field_to_change = "station name", 
   old_value = "Birchy Head",
-  new_value = "Birchy Head 2.0", 
+  new_value = "Birchy Head 1", 
   rationale = "Conflict with NSDFA station name",
   note = "this is a test station name change")
 

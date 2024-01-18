@@ -30,21 +30,21 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
 }
 
-apply_station_name_change <- function(station_name, depl_date, new_value) {
+apply_station_name_change <- function(old_station_name, depl_date, new_station_name) {
   # TODO: Declare status variables for each change in one place?
-  station_folder_path <- get_file_path_to_station_folder(station_folders_path, station_name)
-  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, station_name, depl_date)
+  station_folder_path <- get_file_path_to_station_folder(station_folders_path, old_station_name)
+  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, old_station_name, depl_date)
   # Update String Tracking Sheet
   # Write old station name into old station name column, appending if there is already a value there
-  is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "old station name", station_name, append=TRUE)
+  is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "old station name", old_station_name, append=TRUE)
   # Replace old station name in station column
-  is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "station", new_value)
+  is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "station", new_station_name)
   completion_record <- c(is_old_name_archived && is_old_name_replaced)
   
   # Update Log
-  is_log_content_updated <- update_log_data(deployment_folder_path, "Location_Description", old_value, new_value)
+  is_log_content_updated <- update_log_data(deployment_folder_path, "Location_Description", old_station_name, new_station_name)
   # TODO: Update Log Name
-  is_log_name_updated <- FALSE
+  is_log_name_updated <- update_log_name(deployment_folder_path, new_station_name, depl_date)
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
   # TODO: Update README (at station folder level)
@@ -59,8 +59,8 @@ apply_station_name_change <- function(station_name, depl_date, new_value) {
   is_station_folder_updated <- FALSE
   completion_record <- c(completion_record, is_station_folder_updated)
   
-  # TODO: Update Config Table
-  is_config_table_updated <- update_config_table_entry(station_name, depl_date, new_value)
+  # Update Config Table
+  is_config_table_updated <- update_config_table_entry(old_station_name, depl_date, new_station_name)
   completion_record <- c(completion_record, is_config_table_updated)
   
   return(completion_record)
@@ -204,18 +204,22 @@ write_readme_file <- function(file_path, content) {
   }
 }
 
-update_log_name <- function(station_folder_path, station_name, depl_date) {
+update_log_name <- function(deployment_folder_path, updated_station_name, updated_depl_date) {
   # access log from file path
-  log_file_path <- paste(get_file_path_to_depl_folder(station_folder_path, station_name, depl_date), sep="/")
-  # create archive folder if necessary
-  # copy log to archive
+  log_file_path <- extract_log_folder_name(deployment_folder_path)
+  log_file_name <- extract_log_file_name(deployment_folder_path)
   # TODO: consider/test how copying will work if file already exists with same name?
-  # modify not-archived log contents
+  return(rename_log(log_file_path, log_file_name, updated_station_name, updated_depl_date))
 }
 
 update_log_data <- function(deployment_folder_path, column_to_update, old_value, new_value) {
-  # retrieve log file name
+  # retrieve log file path and name
+  log_file_path <- extract_log_folder_name(deployment_folder_path)
   log_file_name <- extract_log_file_name(deployment_folder_path)
+  message(glue("Log folder path: {log_file_path}"))
+  message(glue("Log file path: {log_file_name}"))
+  # archive old log
+  archive_log(log_file_path, log_file_name)
   # get file type
   log_file_extension <- extract_file_extension(log_file_name)
   # read in log data
