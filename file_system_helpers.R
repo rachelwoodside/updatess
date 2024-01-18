@@ -66,17 +66,19 @@ today_as_yyyy_mm_dd_string <- function() {
   return(format(today(tzone="GMT"), format="%Y-%m-%d"))
 }
 
-construct_new_log_name <- function(station_name, deployment_date) {
-  
+archive_log <- function(log_file_path, log_file_name) {
+  # Create archive folder if it does not exist
+  archive_path <- glue("{log_file_path}/archive")
+  dir.create(archive_path)
+  # Copy log to archive folder
+  archive_log_file_name_local <- str_extract(log_file_name, regex("log\\/([a-z0-9_\\- ]+\\.csv$|[a-z0-9_\\- ]+\\.xlsx$|[a-z0-9_\\- ]+\\.xls$)", ignore_case = TRUE))
+  archive_log_file_name <- glue("{archive_path}/{archive_log_file_name_local}")
+  message("Copying {archive_log_file_name_local} from {log_file_path} to {archive_path}")
+  file.copy(log_file_name, archive_path, copy.date=TRUE)
 }
 
-create_archive_folder <- function() {
-  # TODO: Check if archive folder exists, create if not
-}
-
-move_file_to_archive_folder <- function() {
-  
-}
+archive_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
+            "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv")
 
 # file.rename docs https://r-lang.com/how-to-rename-a-file-in-r/
 
