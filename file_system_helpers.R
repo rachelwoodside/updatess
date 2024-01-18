@@ -49,9 +49,18 @@ extract_log_file_name <- function(deployment_folder_path) {
   return(glue("{log_path}/{dat_files}"))
 }
 
-rename_file <- function(old_name, new_name) {
-  # should be able to rename a file or folder
+rename_log <- function(old_log_file_path, old_log_file_name, updated_station_name, updated_depl_date) {
+  updated_station_name <- to_snake_case(updated_station_name)
+  file_ext <- extract_file_extension(old_log_file_name)
+  new_log_name <- glue("{old_log_file_path}/{updated_station_name}_{updated_depl_date}_log.{file_ext}")
+  file.rename(old_log_file_name, new_log_name)
+  return(new_log_name)
 }
+
+new_log_name <- rename_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
+           "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv",
+           "Birchy Head 1",
+           "2018-02-20")
 
 today_as_yyyy_mm_dd_string <- function() {
   return(format(today(tzone="GMT"), format="%Y-%m-%d"))
