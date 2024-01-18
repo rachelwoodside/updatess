@@ -2,10 +2,16 @@ source("googlesheet_helpers.R")
 source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
 
+station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
+
 apply_deployment_change <- function(station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
+  # Get all necessary file paths
+  station_folder_path <- get_file_path_to_station_folder(station_folders_path, station_name)
+  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, station_name, depl_date)
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
+  # TODO: Add error handler to manage errors and ensure partially completed operations are recorded as done in completion record
   if (field_to_change == "station name") {
     completion_record <- apply_station_name_change(station_name, depl_date, new_value)
   } else if (field_to_change == "deployment date") {
@@ -26,7 +32,8 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
 
 apply_station_name_change <- function(station_name, depl_date, new_value) {
   # TODO: Declare status variables for each change in one place?
-  
+  station_folder_path <- get_file_path_to_station_folder(station_folders_path, station_name)
+  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, station_name, depl_date)
   # Update String Tracking Sheet
   # Write old station name into old station name column, appending if there is already a value there
   is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "old station name", station_name, append=TRUE)
@@ -34,9 +41,8 @@ apply_station_name_change <- function(station_name, depl_date, new_value) {
   is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, depl_date, "station", new_value)
   completion_record <- c(is_old_name_archived && is_old_name_replaced)
   
-  # TODO: Update Log
-  # TODO: Update Log Content
-  is_log_content_updated <- update_log_data()
+  # Update Log
+  is_log_content_updated <- update_log_data(deployment_folder_path, "Location_Description", old_value, new_value)
   # TODO: Update Log Name
   is_log_name_updated <- FALSE
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
@@ -54,7 +60,7 @@ apply_station_name_change <- function(station_name, depl_date, new_value) {
   completion_record <- c(completion_record, is_station_folder_updated)
   
   # TODO: Update Config Table
-  is_config_table_updated <- FALSE
+  is_config_table_updated <- update_config_table_entry(station_name, depl_date, new_value)
   completion_record <- c(completion_record, is_config_table_updated)
   
   return(completion_record)
@@ -141,7 +147,7 @@ update_deployment_folder <- function() {
 
   # TODO: Newer deployments will not be listed in the configuration table
   # Consider how to manage this (simply ignore and allow user to check manually?)
-update_config_table_entry <- function(station_name, deployment_date, old_value, new_value) {
+update_config_table_entry <- function(station_name, deployment_date, new_value) {
   config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_config_tables")
   config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
   cb_config_table_file <- glue("{config_table_file_path}/water_quality_cape_breton_configuration.xlsx")

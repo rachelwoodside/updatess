@@ -9,7 +9,7 @@ source("apply_deployment_change.R")
 
 # CONSTANTS -----------------------------------------------------------------
 #station_folder_path <- "Y:/coastal_monitoring_program/data_branches/water_quality/station_folders"
-station_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
+station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
 #string_tracking_sheet <- drive_get("STRING TRACKING")
 string_tracking_sheet <- drive_get("TestSheetForCodeModification")
 change_tracking_sheet <- drive_get("Deployment Change Tracking")
@@ -22,7 +22,7 @@ apply_deployment_change(
   depl_date = "2018-02-20", 
   field_to_change = "station name", 
   old_value = "Birchy Head",
-  new_value = "New Name", 
+  new_value = "Birchy Head 2.0", 
   rationale = "Conflict with NSDFA station name",
   note = "this is a test station name change")
 
