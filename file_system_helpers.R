@@ -2,6 +2,7 @@ library(dplyr)
 library(tibble)
 library(tidyverse)
 library(snakecase)
+library(glue)
 # Package that could be useful if base R is insufficient: 
 #https://www.datanovia.com/en/blog/how-to-easily-manipulate-files-and-directories-in-r/
 
@@ -98,10 +99,14 @@ create_deployment_folder <- function(station_folders_path, station_name, deploym
   new_station_folder_path <- create_station_folder(station_folders_path, station_name)
   snake_case_station_name <- to_snake_case(station_name)
   new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
-  # TODO: Check that new_deployment_folder_path does not already exist (even though dir.create does this already)
-  # because we want to return the folder path even if the directory already exists (i.e. the directory already
-  # existing should essentially count as a success)
-  dir.create(new_deployment_folder_path)
+  # TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
+  # if condition to make sure we don't get a warning for trying to create it when it exists
+  if (!dir.exists(new_deployment_folder_path)) {
+    dir.create(new_deployment_folder_path)
+    message(glue("Deployment folder created: '{new_deployment_folder_path}'\n"))
+  } else {
+    message(glue("Deployment folder already exists. Continuing execution.\n"))
+  }
   return(new_deployment_folder_path)
 }
 
@@ -110,16 +115,21 @@ create_deployment_folder <- function(station_folders_path, station_name, deploym
 create_station_folder <- function(station_folders_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
   new_station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
-  # TODO: Check that new_station_folder_path does not already exist (even though dir.create does this already)
-  # because we want to return the folder path even if the directory already exists (i.e. the directory already
-  # existing should essentially count as a success)
-  dir.create(new_station_folder_path)
+  # TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
+  # if condition to make sure we don't get a warning for trying to create it when it exists
+  if (!dir.exists(new_station_folder_path)) {
+    dir.create(new_station_folder_path)
+    message(glue("Station folder created: '{new_station_folder_path}'\n"))
+  } else {
+    message(glue("Station folder already exists. Continuing execution.\n"))
+  }
   return(new_station_folder_path)
 }
 
-#create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
-                      #"A New Station")
+create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
+                      "A New Station")
 
 create_deployment_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
                       "A New Station",
                       "2018-02-20")
+
