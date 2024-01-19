@@ -93,15 +93,21 @@ archive_log <- function(log_file_path, log_file_name) {
 
 
 # required for station name changes
-rename_station_folder <- function() {
+build_new_station_folder_name <- function() {
   
 }
 
 # required for station name or deployment date changes
-rename_deployment_folder <- function() {
+build_deployment_folder_name <- function() {
   
 }
 
-create_station_folder <- function() {
-  
+create_station_folder <- function(station_folders_path, station_name) {
+  snake_case_station_name <- to_snake_case(station_name)
+  new_station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
+  dir.create(new_station_folder_path)
+  return(TRUE)
 }
+
+#create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
+                      #"A New Station")
