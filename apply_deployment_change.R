@@ -13,7 +13,7 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
   # TODO: Add error handler to manage errors and ensure partially completed operations are recorded as done in completion record
   if (field_to_change == "station name") {
-    completion_record <- apply_station_name_change(station_name, depl_date, new_value)
+    completion_record <- apply_station_name_change(station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "deployment date") {
     completion_record <- apply_deployment_date_change(station_name, depl_date, new_value)
   } else if (field_to_change == "retrieval date") {
@@ -30,7 +30,7 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
 }
 
-apply_station_name_change <- function(old_station_name, depl_date, new_station_name) {
+apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
   # TODO: Declare status variables for each change in one place?
   station_folder_path <- get_file_path_to_station_folder(station_folders_path, old_station_name)
   deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, old_station_name, depl_date)
@@ -43,12 +43,13 @@ apply_station_name_change <- function(old_station_name, depl_date, new_station_n
   
   # Update Log
   is_log_content_updated <- update_log_data(deployment_folder_path, "Location_Description", old_station_name, new_station_name)
-  # TODO: Update Log Name
+  # Update Log Name
   is_log_name_updated <- update_log_name(deployment_folder_path, new_station_name, depl_date)
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
-  # TODO: Update README (at station folder level)
-  is_readme_updated <- FALSE
+  # Update README (at station folder level)
+  readme_content <- build_readme_content("station name", old_value, new_value, rationale, note)
+  is_readme_updated <- write_readme_file(station_folder_path, content)
   completion_record <- c(completion_record, is_readme_updated)
   
   # TODO: Update Deployment Folder
@@ -181,7 +182,6 @@ update_config_table_entry <- function(station_name, deployment_date, new_value) 
 
 write_readme_file <- function(file_path, content) {
   full_file_name <- paste0(file_path, "/README.txt")
-  dated_content <- paste(today_as_yyyy_mm_dd_string(), "update:", content)
   file_list <- list.files(file_path, pattern="README.txt", ignore.case=TRUE)
   if (length(file_list) > 1) {
     print("Multiple README files found. Please manually condense the files into one.")
@@ -197,11 +197,17 @@ write_readme_file <- function(file_path, content) {
     }
     # Append to existing README if it exists or create and write if it does not
     # Note: this is not case-sensitive
-    # TODO: Potentially get this to write the date of the change as well?
     cat(dated_content, file=full_file_name, append=TRUE)
     # return TRUE for a success
     return(TRUE)
   }
+}
+
+build_readme_content <- function(field_to_change, old_value, new_value, rationale, note) {
+  dated_content <- glue("{today_as_yyyy_mm_dd_string()} update: changed {field_to_change} from {old_value} to {new_value}.\n 
+                        Rationale: {rationale} \n
+                        Additional Note: {note}")
+  return(dated_content)
 }
 
 update_log_name <- function(deployment_folder_path, updated_station_name, updated_depl_date) {
