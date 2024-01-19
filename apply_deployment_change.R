@@ -206,7 +206,7 @@ write_readme_file <- function(file_path, content) {
 
 update_log_name <- function(deployment_folder_path, updated_station_name, updated_depl_date) {
   # access log from file path
-  log_file_path <- extract_log_folder_name(deployment_folder_path)
+  log_file_path <- extract_log_folder_path(deployment_folder_path)
   log_file_name <- extract_log_file_name(deployment_folder_path)
   # TODO: consider/test how copying will work if file already exists with same name?
   return(rename_log(log_file_path, log_file_name, updated_station_name, updated_depl_date))
@@ -214,7 +214,7 @@ update_log_name <- function(deployment_folder_path, updated_station_name, update
 
 update_log_data <- function(deployment_folder_path, column_to_update, old_value, new_value) {
   # retrieve log file path and name
-  log_file_path <- extract_log_folder_name(deployment_folder_path)
+  log_file_path <- extract_log_folder_path(deployment_folder_path)
   log_file_name <- extract_log_file_name(deployment_folder_path)
   message(glue("Log folder path: {log_file_path}"))
   message(glue("Log file path: {log_file_name}"))

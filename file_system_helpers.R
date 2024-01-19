@@ -25,18 +25,23 @@ extract_file_extension <- function(file_name) {
 }
 
 extract_log_folder_name <- function(deployment_folder_path) {
+  # Read in log as in ss_read_log.R from sensorstrings package on 2024-01-15
+  # extract the name of the log folder (e.g. Log, log, LOG)
   log_folder <- list.files(deployment_folder_path) %>%
                 str_extract(regex("log", ignore_case = TRUE)) %>%
                 na.omit()
   return(log_folder)
 }
 
-extract_log_file_name <- function(deployment_folder_path) {
-  # Read in log as in ss_read_log.R from sensorstrings package on 2024-01-15
-  # extract the name of the log folder (e.g. Log, log, LOG)
+extract_log_folder_path <- function(deployment_folder_path) {
   log_folder <- extract_log_folder_name(deployment_folder_path)
-  
   log_path <- glue("{deployment_folder_path}/{log_folder}")
+  return(log_path)
+}
+
+extract_log_file_name <- function(deployment_folder_path) {
+  
+  log_path <- extract_log_folder_path(deployment_folder_path)
   
   dat_files <- list.files(log_path, all.files = FALSE, pattern = "*xlsx|*xls|*csv")
   
