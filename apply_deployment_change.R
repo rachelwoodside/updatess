@@ -48,15 +48,22 @@ apply_station_name_change <- function(old_station_name, depl_date, new_station_n
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
   # Update README (at station folder level)
-  readme_content <- build_readme_content("station name", old_value, new_value, rationale, note)
-  is_readme_updated <- write_readme_file(station_folder_path, content)
+  readme_content <- build_readme_content("station name", old_station_name, new_station_name, rationale, note)
+  is_readme_updated <- write_readme_file(station_folder_path, readme_content)
   completion_record <- c(completion_record, is_readme_updated)
   
-  # TODO: Update Deployment Folder
+  # Create new station and deployment folder structure
+  # This will attempt to create the station folder, in case create_new_station() was not called prior
+  new_deployment_folder_path <- create_deployment_folder(station_folders_path, new_station_name, depl_date)
+  
+  # Copy content to new deployment folder
+  are_deployment_files_copied <- file.copy(deployment_folder_path, new_deployment_folder_path)
+  
+  # TODO: Write functions to check if data has been correctly copied and old copies deleted
   is_depl_folder_updated <- FALSE
   completion_record <- c(completion_record, is_depl_folder_updated)
   
-  # TODO: Update Station Folder
+  # Update Station Folder
   is_station_folder_updated <- FALSE
   completion_record <- c(completion_record, is_station_folder_updated)
   
@@ -197,7 +204,7 @@ write_readme_file <- function(file_path, content) {
     }
     # Append to existing README if it exists or create and write if it does not
     # Note: this is not case-sensitive
-    cat(dated_content, file=full_file_name, append=TRUE)
+    cat(content, file=full_file_name, append=TRUE)
     # return TRUE for a success
     return(TRUE)
   }

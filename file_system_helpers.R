@@ -94,7 +94,6 @@ archive_log <- function(log_file_path, log_file_name) {
 
 # required for station name or deployment date changes
 create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {
-  # TODO: Check there is no unexpected behaviour from creating a station folder that already exists?
   # Make sure the station folder has already been created so the path to the station folder should exist
   new_station_folder_path <- create_station_folder(station_folders_path, station_name)
   snake_case_station_name <- to_snake_case(station_name)
@@ -126,10 +125,9 @@ create_station_folder <- function(station_folders_path, station_name) {
   return(new_station_folder_path)
 }
 
-create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
-                      "A New Station")
+#create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
+                      #"A New Station")
 
-create_deployment_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
-                      "A New Station",
-                      "2018-02-20")
-
+#create_deployment_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
+                      #"A New Station",
+                      #"2018-02-20")
