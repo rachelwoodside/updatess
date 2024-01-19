@@ -91,23 +91,35 @@ archive_log <- function(log_file_path, log_file_name) {
 #archive_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
 #            "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv")
 
-
-# required for station name changes
-build_new_station_folder_name <- function() {
-  
-}
-
 # required for station name or deployment date changes
-build_deployment_folder_name <- function() {
-  
+create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {
+  # TODO: Check there is no unexpected behaviour from creating a station folder that already exists?
+  # Make sure the station folder has already been created so the path to the station folder should exist
+  new_station_folder_path <- create_station_folder(station_folders_path, station_name)
+  snake_case_station_name <- to_snake_case(station_name)
+  new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
+  # TODO: Check that new_deployment_folder_path does not already exist (even though dir.create does this already)
+  # because we want to return the folder path even if the directory already exists (i.e. the directory already
+  # existing should essentially count as a success)
+  dir.create(new_deployment_folder_path)
+  return(new_deployment_folder_path)
 }
 
+# TODO: Check that snake case conversion works even if snake case is already provided
+# for use with create_deployment_folder() function
 create_station_folder <- function(station_folders_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
   new_station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
+  # TODO: Check that new_station_folder_path does not already exist (even though dir.create does this already)
+  # because we want to return the folder path even if the directory already exists (i.e. the directory already
+  # existing should essentially count as a success)
   dir.create(new_station_folder_path)
-  return(TRUE)
+  return(new_station_folder_path)
 }
 
 #create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
                       #"A New Station")
+
+create_deployment_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
+                      "A New Station",
+                      "2018-02-20")
