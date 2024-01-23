@@ -7,9 +7,10 @@ source("apply_deployment_change.R")
 # TODO: Build row in a different way to allow for parallelizing operations? 
 #(Contingent on identifying information like station name and deployment date not changing too soon...?)
 
-# SET UP DIRECTORIES ---------------------------------------------------------
+# SET UP DIRECTORIES AS GLOBAL VARIABLES ------------------------------------
+template_home_path <- setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 #station_folders_path <- "Y:/coastal_monitoring_program/data_branches/water_quality/station_folders"
-station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
+stations_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
 #string_tracking_sheet <- drive_get("STRING TRACKING")
 string_tracking_sheet <- drive_get("TestSheetForCodeModification")
 change_tracking_sheet <- drive_get("Deployment Change Tracking")
@@ -18,10 +19,14 @@ config_table_folder_path <- "R:/tracking_sheets"
 # Set wd to directory containing station folders, allowing work with relative paths
 # CAN'T DO THIS - prevents us from referencing other files in the project
 #setwd(station_folders_path)
+# Current solution attempt: modify working directory within other R files then 
+# reset back to package working directory after each function call?
 
 # MODIFY HERE!! -------------------------------------------------------------
 
 apply_deployment_change(
+  stations_folder_path = stations_folder_path,
+  template_home_path = template_home_path,
   station_name = "Birchy Head",
   depl_date = "2018-02-20", 
   field_to_change = "station name", 

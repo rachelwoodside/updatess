@@ -3,14 +3,12 @@ library(tibble)
 library(tidyverse)
 library(snakecase)
 library(glue)
-# Package that could be useful if base R is insufficient: 
-#https://www.datanovia.com/en/blog/how-to-easily-manipulate-files-and-directories-in-r/
 
 get_absolute_file_path_to_station_folder <- function(station_folders_path, station_name) {
   return(file.path(station_folders_path, to_snake_case(station_name)))
 }
 
-get_relative_file_path_to_station_folder <- function(station_name) {
+get_relative_file_path_to_station_folder <- function(station_folders_path, station_name) {
   return(file.path(to_snake_case(station_name)))
 }
 

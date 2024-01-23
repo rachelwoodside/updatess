@@ -3,12 +3,10 @@ source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
 library(fs)
 
-station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
-
-apply_deployment_change <- function(station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
-  # Get all necessary file paths
-  station_folder_path <- get_relative_file_path_to_station_folder(station_name)
-  deployment_folder_path <- get_relative_file_path_to_depl_folder(station_name, depl_date)
+apply_deployment_change <- function(stations_folder_path, template_home_path, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
+  # Set working directory to station folders directory
+  message(glue("Setting working directory to: {stations_folder_path}"))
+  setwd(stations_folder_path)
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
@@ -29,6 +27,9 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
   tracking_sheet_row <- c(tracking_sheet_row, completion_record, todo_items, note)
   tracking_sheet_row_df <- as.data.frame(t(tracking_sheet_row), stringsAsFactors=FALSE)
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
+  message("Deployment change complete. Please review tracking sheet row to confirm which steps were successful.")
+  message(glue("Returning to deployment change template directory: {template_home_path}"))
+  setwd(template_home_path)
 }
 
 apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
@@ -78,7 +79,6 @@ apply_station_name_change <- function(old_station_name, depl_date, new_station_n
   # Update Config Table
   is_config_table_updated <- update_config_table_entry(old_station_name, depl_date, new_station_name)
   completion_record <- c(completion_record, is_config_table_updated)
-  
   return(completion_record)
 }
 
