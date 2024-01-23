@@ -7,8 +7,8 @@ station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/proj
 
 apply_deployment_change <- function(station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
   # Get all necessary file paths
-  station_folder_path <- get_file_path_to_station_folder(station_folders_path, station_name)
-  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, station_name, depl_date)
+  station_folder_path <- get_relative_file_path_to_station_folder(station_name)
+  deployment_folder_path <- get_relative_file_path_to_depl_folder(station_name, depl_date)
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
@@ -34,13 +34,13 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
 apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
   completion_record <- c()
   # TODO: Declare status variables for each change in one place?
-  station_folder_path <- get_file_path_to_station_folder(station_folders_path, old_station_name)
-  deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, old_station_name, depl_date)
+  station_folder_path <- get_relative_file_path_to_station_folder(old_station_name)
+  deployment_folder_path <- get_relative_file_path_to_depl_folder(old_station_name, depl_date)
   
   # Create new station and deployment folder structure
   # This will attempt to create the station folder, in case create_new_station() was not called prior
-  new_station_folder_path <- create_station_folder(station_folders_path, new_station_name)
-  new_deployment_folder_path <- create_deployment_folder(station_folders_path, new_station_name, depl_date)
+  new_station_folder_path <- create_station_folder(new_station_name)
+  new_deployment_folder_path <- create_deployment_folder(new_station_name, depl_date)
   
   # Copy content to new deployment folder
   are_deployment_files_moved <- dir_copy(deployment_folder_path, new_deployment_folder_path)

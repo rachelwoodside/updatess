@@ -6,14 +6,24 @@ library(glue)
 # Package that could be useful if base R is insufficient: 
 #https://www.datanovia.com/en/blog/how-to-easily-manipulate-files-and-directories-in-r/
 
-get_file_path_to_station_folder <- function(station_folders_path, station_name) {
+get_absolute_file_path_to_station_folder <- function(station_folders_path, station_name) {
   return(file.path(station_folders_path, to_snake_case(station_name)))
 }
 
-get_file_path_to_depl_folder <- function(station_folder_path, station_name, depl_date) {
+get_relative_file_path_to_station_folder <- function(station_name) {
+  return(file.path(to_snake_case(station_name)))
+}
+
+get_absolute_path_to_depl_folder <- function(station_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
   depl_folder <- paste(snake_case_station_name, depl_date, sep="_")
   return(file.path(station_folder_path, snake_case_station_name, depl_folder))
+}
+
+get_relative_path_to_depl_folder <- function(station_name, depl_date) {
+  snake_case_station_name <- to_snake_case(station_name)
+  depl_folder <- glue("{snake_case_station_name}_{depl_date}")
+  return(file.path(snake_case_station_name, depl_folder))
 }
 
 # File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15
