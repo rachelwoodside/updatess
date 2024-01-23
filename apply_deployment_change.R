@@ -1,6 +1,7 @@
 source("googlesheet_helpers.R")
 source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
+library(fs)
 
 station_folders_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
 
@@ -31,9 +32,30 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
 }
 
 apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
+  completion_record <- c()
   # TODO: Declare status variables for each change in one place?
   station_folder_path <- get_file_path_to_station_folder(station_folders_path, old_station_name)
   deployment_folder_path <- get_file_path_to_depl_folder(station_folders_path, old_station_name, depl_date)
+  
+  # Create new station and deployment folder structure
+  # This will attempt to create the station folder, in case create_new_station() was not called prior
+  new_station_folder_path <- create_station_folder(station_folders_path, new_station_name)
+  new_deployment_folder_path <- create_deployment_folder(station_folders_path, new_station_name, depl_date)
+  
+  # Copy content to new deployment folder
+  are_deployment_files_moved <- dir_copy(deployment_folder_path, new_deployment_folder_path)
+  
+  # TODO: Delete old deployment folder after successful copy
+  # TODO: Check if station folder is new empty and delete if so?
+  
+  # TODO: Write functions to check if data has been correctly copied and old copies deleted
+  is_depl_folder_updated <- FALSE
+  completion_record <- c(completion_record, is_depl_folder_updated)
+  
+  # Update Station Folder
+  #is_station_folder_updated <- FALSE
+  #completion_record <- c(completion_record, is_station_folder_updated)
+  
   # Update String Tracking Sheet
   # Write old station name into old station name column, appending if there is already a value there
   is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "old station name", old_station_name, append=TRUE)
@@ -42,30 +64,16 @@ apply_station_name_change <- function(old_station_name, depl_date, new_station_n
   completion_record <- c(is_old_name_archived && is_old_name_replaced)
   
   # Update Log
-  is_log_content_updated <- update_log_data(deployment_folder_path, "Location_Description", old_station_name, new_station_name)
+  is_log_content_updated <- update_log_data(new_deployment_folder_path, "Location_Description", old_station_name, new_station_name)
   # Update Log Name
-  is_log_name_updated <- update_log_name(deployment_folder_path, new_station_name, depl_date)
+  is_log_name_updated <- update_log_name(new_deployment_folder_path, new_station_name, depl_date)
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
   # Update README (at station folder level)
   readme_content <- build_readme_content("station name", old_station_name, new_station_name, rationale, note)
-  is_readme_updated <- write_readme_file(station_folder_path, readme_content)
+  # TODO: Fix readme to write to new station folder
+  is_readme_updated <- write_readme_file(new_station_folder_path, readme_content)
   completion_record <- c(completion_record, is_readme_updated)
-  
-  # Create new station and deployment folder structure
-  # This will attempt to create the station folder, in case create_new_station() was not called prior
-  new_deployment_folder_path <- create_deployment_folder(station_folders_path, new_station_name, depl_date)
-  
-  # Copy content to new deployment folder
-  are_deployment_files_copied <- file.copy(deployment_folder_path, new_deployment_folder_path)
-  
-  # TODO: Write functions to check if data has been correctly copied and old copies deleted
-  is_depl_folder_updated <- FALSE
-  completion_record <- c(completion_record, is_depl_folder_updated)
-  
-  # Update Station Folder
-  is_station_folder_updated <- FALSE
-  completion_record <- c(completion_record, is_station_folder_updated)
   
   # Update Config Table
   is_config_table_updated <- update_config_table_entry(old_station_name, depl_date, new_station_name)
