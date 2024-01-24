@@ -24,6 +24,7 @@ config_table_folder_path <- "R:/tracking_sheets"
 # MODIFY HERE!! -------------------------------------------------------------
 
 apply_deployment_change(
+  stations_folder_path = stations_folder_path,
   station_name = "Birchy Head",
   depl_date = "2018-02-20", 
   field_to_change = "station name", 

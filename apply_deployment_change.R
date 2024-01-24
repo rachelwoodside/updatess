@@ -3,13 +3,13 @@ source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
 library(fs)
 
-apply_deployment_change <- function(station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
+apply_deployment_change <- function(stations_folder_path, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
   # TODO: Add error handler to manage errors and ensure partially completed operations are recorded as done in completion record
   if (field_to_change == "station name") {
-    completion_record <- apply_station_name_change(station_name, depl_date, new_value, rationale, note)
+    completion_record <- apply_station_name_change(stations_folder_path, station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "deployment date") {
     completion_record <- apply_deployment_date_change(station_name, depl_date, new_value)
   } else if (field_to_change == "retrieval date") {
@@ -26,16 +26,22 @@ apply_deployment_change <- function(station_name, depl_date, field_to_change, ol
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
 }
 
-apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
+apply_station_name_change <- function(stations_folder_path, old_station_name, depl_date, new_station_name, rationale, note) {
   completion_record <- c()
-  # TODO: Declare status variables for each change in one place?
-  station_folder_path <- get_relative_file_path_to_station_folder(old_station_name)
-  deployment_folder_path <- get_relative_file_path_to_depl_folder(old_station_name, depl_date)
+  
+  # Get relevant directory structure from old values
+  message("Resolving current directory structure...")
+  rel_stations_folder_path <- get_relative_path_from_wd_to_stations_folder(stations_folder_path)
+  message(glue("Stations folder path relative to current working directory: {rel_stations_folder_path}"))
+  station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, old_station_name)
+  message(glue("Specific station folder path relative to current working directory: {station_folder_path}"))
+  deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, old_station_name, depl_date)
+  message(glue("Deployment folder path relative to current working directory: {deployment_folder_path}"))
   
   # Create new station and deployment folder structure
   # This will attempt to create the station folder, in case create_new_station() was not called prior
-  new_station_folder_path <- create_station_folder(new_station_name)
-  new_deployment_folder_path <- create_deployment_folder(new_station_name, depl_date)
+  new_station_folder_path <- create_station_folder(rel_stations_folder_path, new_station_name)
+  new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, new_station_name, depl_date)
   
   # Copy content to new deployment folder
   are_deployment_files_moved <- dir_copy(deployment_folder_path, new_deployment_folder_path)

@@ -28,7 +28,7 @@ get_relative_path_to_station_folder <- function(rel_stations_folder_path, statio
 # TODO: Add check to see if directory exists?
 get_relative_path_to_depl_folder <- function(rel_station_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
-  depl_folder_path <- path_norm(glue("{rel_stations_folder_path}/{snake_case_station_name}_{depl_date}"))
+  depl_folder_path <- path_norm(glue("{rel_station_folder_path}/{snake_case_station_name}_{depl_date}"))
   return(depl_folder_path)
 }
 
