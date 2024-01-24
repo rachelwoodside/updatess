@@ -19,6 +19,7 @@ config_table_folder_path <- "R:/tracking_sheets"
 # Set wd to directory containing station folders, allowing work with relative paths
 # CAN'T DO THIS - prevents us from referencing other files in the project
 #setwd(station_folders_path)
+setwd(template_home_path)
 # Current solution attempt: modify working directory within other R files then 
 # reset back to package working directory after each function call?
 
