@@ -12,6 +12,25 @@ library(fs)
 #  return(file.path(station_folders_path, to_snake_case(station_name)))
 #}
 
+# GENERIC HELPERS --------------------------------------------------------------
+
+today_as_yyyy_mm_dd_string <- function() {
+  return(format(today(tzone="GMT"), format="%Y-%m-%d"))
+}
+
+
+# TODO: Replace this with file_ext from the fs package?
+# File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15
+extract_file_extension <- function(file_name) {
+  extension <- file_name %>%
+    data.frame() %>%
+    separate(col = 1, into = c(NA, "EXT"), sep = "\\.")
+  
+  extension$EXT
+}
+
+# PATH FINDING HELPERS ---------------------------------------------------------
+
 # TODO: Add check to see if directory exists?
 get_relative_path_to_station_folder <- function(rel_stations_folder_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
@@ -42,15 +61,12 @@ get_relative_path_from_wd_to_stations_folder <- function(stations_folder_path) {
   return(relative_path)
 }
 
-# TODO: Replace this with file_ext from the fs package?
-# File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15
-extract_file_extension <- function(file_name) {
-  extension <- file_name %>%
-    data.frame() %>%
-    separate(col = 1, into = c(NA, "EXT"), sep = "\\.")
+# COPYING AND DELETING OPERATIONS ----------------------------------------------
+copy_deployment_files <- function (old_deployment_folder_path, new_deployment_folder_path) {
   
-  extension$EXT
 }
+
+# LOG OPERATIONS ---------------------------------------------------------------
 
 extract_log_folder_name <- function(deployment_folder_path) {
   # Read in log as in ss_read_log.R from sensorstrings package on 2024-01-15
@@ -100,10 +116,6 @@ rename_log <- function(old_log_file_path, old_log_file_name, updated_station_nam
 #           "Birchy Head 1",
 #           "2018-02-20")
 
-today_as_yyyy_mm_dd_string <- function() {
-  return(format(today(tzone="GMT"), format="%Y-%m-%d"))
-}
-
 archive_log <- function(log_file_path, log_file_name) {
   # Create archive folder if it does not exist
   archive_path <- glue("{log_file_path}/archive")
@@ -118,6 +130,8 @@ archive_log <- function(log_file_path, log_file_name) {
 
 #archive_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
 #            "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv")
+
+# CREATING NEW FOLDERS ---------------------------------------------------------
 
 # required for station name or deployment date changes
 create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {

@@ -44,7 +44,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, new_station_name, depl_date)
   
   # Copy content to new deployment folder
-  are_deployment_files_moved <- dir_copy(deployment_folder_path, new_deployment_folder_path)
+  are_deployment_files_moved <- copy_deployment_files(deployment_folder_path, new_deployment_folder_path)
   
   # TODO: Delete old deployment folder after successful copy
   # TODO: Check if station folder is new empty and delete if so?
