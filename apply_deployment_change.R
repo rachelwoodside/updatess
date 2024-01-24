@@ -3,10 +3,7 @@ source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
 library(fs)
 
-apply_deployment_change <- function(stations_folder_path, template_home_path, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
-  # Set working directory to station folders directory
-  message(glue("Setting working directory to: {stations_folder_path}"))
-  setwd(stations_folder_path)
+apply_deployment_change <- function(station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
@@ -27,9 +24,6 @@ apply_deployment_change <- function(stations_folder_path, template_home_path, st
   tracking_sheet_row <- c(tracking_sheet_row, completion_record, todo_items, note)
   tracking_sheet_row_df <- as.data.frame(t(tracking_sheet_row), stringsAsFactors=FALSE)
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
-  message("Deployment change complete. Please review tracking sheet row to confirm which steps were successful.")
-  message(glue("Returning to deployment change template directory: {template_home_path}"))
-  setwd(template_home_path)
 }
 
 apply_station_name_change <- function(old_station_name, depl_date, new_station_name, rationale, note) {
