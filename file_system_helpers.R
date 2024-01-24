@@ -3,6 +3,10 @@ library(tibble)
 library(tidyverse)
 library(snakecase)
 library(glue)
+library(fs)
+
+# Assumes that the updatess project is in a directory "updatess", contained in the same directory
+# as the directory which holds all the station folders
 
 #get_absolute_file_path_to_station_folder <- function(station_folders_path, station_name) {
 #  return(file.path(station_folders_path, to_snake_case(station_name)))
@@ -18,10 +22,19 @@ get_relative_file_path_to_station_folder <- function(station_name) {
 #  return(file.path(station_folder_path, snake_case_station_name, depl_folder))
 #}
 
-get_relative_path_to_depl_folder <- function(station_name, depl_date) {
+get_relative_path_to_depl_folder <- function(rel_stations_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
-  depl_folder <- glue("{snake_case_station_name}_{depl_date}")
-  return(file.path(snake_case_station_name, depl_folder))
+  depl_folder <- glue("{rel_stations_folder_path}/{snake_case_station_name}_{depl_date}")
+  return(rel_depl_folder_path)
+}
+
+# TODO: Add check for max path error with error message to the effect of:
+# Template must be closer to the directory containing all the station folders due to max path length limitations
+# TODO: Add check to confirm this path exists - this should also confirm that it is correctly calculated
+# relative to the current working directory
+get_relative_path_from_template_to_stations_folder <- function(cwdir, stations_folder_path) {
+  relative_path <- path_rel(stations_folder_path, start=cwdir)
+  return(relative_path)
 }
 
 # File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15

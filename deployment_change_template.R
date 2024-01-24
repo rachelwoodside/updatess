@@ -8,9 +8,14 @@ source("apply_deployment_change.R")
 #(Contingent on identifying information like station name and deployment date not changing too soon...?)
 
 # SET UP DIRECTORIES AS GLOBAL VARIABLES ------------------------------------
-template_home_path <- setwd(dirname(rstudioapi::getSourceEditorContext()$path))
+# Currently assumes opening as an R project, but should the directory be set just in case?
+# Adding the commented code would break things if the template is in a different location from the R project
+# (But then it would be broken anyways - it still wouldn't source the helper function files properly)
+#template_home_path <- dirname(rstudioapi::getSourceEditorContext()$path)
+#setwd(template_home_path)
+cwdir <- getwd()
 #station_folders_path <- "Y:/coastal_monitoring_program/data_branches/water_quality/station_folders"
-stations_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders"
+stations_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders"
 #string_tracking_sheet <- drive_get("STRING TRACKING")
 string_tracking_sheet <- drive_get("TestSheetForCodeModification")
 change_tracking_sheet <- drive_get("Deployment Change Tracking")
