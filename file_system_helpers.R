@@ -61,6 +61,12 @@ get_relative_path_from_wd_to_stations_folder <- function(stations_folder_path) {
   return(relative_path)
 }
 
+strip_path_start <- function(full_path, path_start) {
+  path_start_regex <- regex(paste0(path_start, "\\/([a-z0-9\\/_\\-]+)"), ignore_case=TRUE)
+  match <- str_extract(full_path, pattern=path_start_regex, group=1)
+  return(match)
+}
+
 # COPYING AND DELETING OPERATIONS ----------------------------------------------
 # TODO: Update this to use a relative path, passed to the function
 # This should ensure that we avoid the path size limit
@@ -81,6 +87,23 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
 
 #copy_deployment_files("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head/birchy_head_2018-02-20",
  #                     "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+
+safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_deployment_folder_path) {
+  # Check that directories that exist in the old deployment folder also exist in the new deployment folder
+  message(glue("Checking that all directories that exist in {old_deployment_folder_path} also exist in {new_deployment_folder_path}..."))
+  # Note: recurse option set to true to check nested files
+  old_dirs <- dir_ls(old_deployment_folder_path, type="directory", recurse=TRUE)
+  old_dirs <- map_chr(old_dirs, strip_path_start, old_deployment_folder_path)
+  new_dirs <- dir_ls(new_deployment_folder_path, type="directory", recurse=TRUE)
+  dir_diff <- setdiff(old_dirs, new_dirs)
+  message(old_dirs)
+  
+}
+
+safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                                  "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+
+
 
 # LOG OPERATIONS ---------------------------------------------------------------
 
