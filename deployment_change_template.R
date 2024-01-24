@@ -6,6 +6,7 @@ source("apply_deployment_change.R")
 # TODO: Is try-catch an option to manage continuation of execution if one change encounters an error and fails (e.g. catch block returns FALSE?)
 # TODO: Build row in a different way to allow for parallelizing operations? 
 #(Contingent on identifying information like station name and deployment date not changing too soon...?)
+#(Also there are enough dependencies, particularly on directory structure that this is unlikely to be worthwhile)
 
 # SET UP DIRECTORIES AS GLOBAL VARIABLES ------------------------------------
 # Currently assumes opening as an R project, but should the directory be set just in case?
@@ -13,7 +14,6 @@ source("apply_deployment_change.R")
 # (But then it would be broken anyways - it still wouldn't source the helper function files properly)
 #template_home_path <- dirname(rstudioapi::getSourceEditorContext()$path)
 #setwd(template_home_path)
-cwdir <- getwd()
 #station_folders_path <- "Y:/coastal_monitoring_program/data_branches/water_quality/station_folders"
 stations_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders"
 #string_tracking_sheet <- drive_get("STRING TRACKING")

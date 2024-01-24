@@ -12,8 +12,11 @@ library(fs)
 #  return(file.path(station_folders_path, to_snake_case(station_name)))
 #}
 
-get_relative_file_path_to_station_folder <- function(station_name) {
-  return(file.path(to_snake_case(station_name)))
+# TODO: Add check to see if directory exists?
+get_relative_path_to_station_folder <- function(rel_stations_folder_path, station_name) {
+  snake_case_station_name <- to_snake_case(station_name)
+  station_folder_path <- path_norm(glue("{rel_stations_folder_path}/{snake_case_station_name}"))
+  return(station_folder_path)
 }
 
 #get_absolute_path_to_depl_folder <- function(station_folder_path, station_name, depl_date) {
@@ -22,21 +25,24 @@ get_relative_file_path_to_station_folder <- function(station_name) {
 #  return(file.path(station_folder_path, snake_case_station_name, depl_folder))
 #}
 
-get_relative_path_to_depl_folder <- function(rel_stations_folder_path, station_name, depl_date) {
+# TODO: Add check to see if directory exists?
+get_relative_path_to_depl_folder <- function(rel_station_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
-  depl_folder <- glue("{rel_stations_folder_path}/{snake_case_station_name}_{depl_date}")
-  return(rel_depl_folder_path)
+  depl_folder_path <- path_norm(glue("{rel_stations_folder_path}/{snake_case_station_name}_{depl_date}"))
+  return(depl_folder_path)
 }
 
 # TODO: Add check for max path error with error message to the effect of:
 # Template must be closer to the directory containing all the station folders due to max path length limitations
 # TODO: Add check to confirm this path exists - this should also confirm that it is correctly calculated
 # relative to the current working directory
-get_relative_path_from_template_to_stations_folder <- function(cwdir, stations_folder_path) {
+get_relative_path_from_wd_to_stations_folder <- function(stations_folder_path) {
+  cwdir <- getwd()
   relative_path <- path_rel(stations_folder_path, start=cwdir)
   return(relative_path)
 }
 
+# TODO: Replace this with file_ext from the fs package?
 # File extension extraction function pulled from helpers-misc.R in sensorstrings package on 2024-01-15
 extract_file_extension <- function(file_name) {
   extension <- file_name %>%
