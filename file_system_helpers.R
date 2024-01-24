@@ -62,9 +62,25 @@ get_relative_path_from_wd_to_stations_folder <- function(stations_folder_path) {
 }
 
 # COPYING AND DELETING OPERATIONS ----------------------------------------------
-copy_deployment_files <- function (old_deployment_folder_path, new_deployment_folder_path) {
-  
+# TODO: Update this to use a relative path, passed to the function
+# This should ensure that we avoid the path size limit
+copy_deployment_files <- function(old_deployment_folder_path, new_deployment_folder_path) {
+  dirs_to_copy <- dir_ls(old_deployment_folder_path, type="directory")
+  message(glue("Copying folders from {old_deployment_folder_path}..."))
+  for (dir in dirs_to_copy) {
+    message(glue("Copying {dir}"))
+    dir_copy(dir, new_deployment_folder_path)
+  }
+  files_to_copy <- dir_ls(old_deployment_folder_path, type="file")
+  message(glue("Copying files from {old_deployment_folder_path}..."))
+  for (file in files_to_copy) {
+    message(glue("Copying {file}"))
+    file_copy(file, new_deployment_folder_path)
+  }
 }
+
+#copy_deployment_files("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head/birchy_head_2018-02-20",
+ #                     "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 # LOG OPERATIONS ---------------------------------------------------------------
 

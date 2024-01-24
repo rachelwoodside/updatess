@@ -45,6 +45,8 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   
   # Copy content to new deployment folder
   are_deployment_files_moved <- copy_deployment_files(deployment_folder_path, new_deployment_folder_path)
+  # TODO: Do we need to copy content to the new station folder - i.e. are there notes that would still apply 
+  # even after a station name change
   
   # TODO: Delete old deployment folder after successful copy
   # TODO: Check if station folder is new empty and delete if so?
