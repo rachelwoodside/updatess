@@ -80,6 +80,7 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
     message(glue("Copying {file}"))
     file_copy(file, new_deployment_folder_path)
   }
+  return(TRUE)
 }
 
 #copy_deployment_files("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head/birchy_head_2018-02-20",
@@ -141,7 +142,7 @@ extract_log_file_name <- function(deployment_folder_path) {
 
 rename_log <- function(old_log_file_path, old_log_file_name, updated_station_name, updated_depl_date) {
   updated_station_name <- to_snake_case(updated_station_name)
-  file_ext <- extract_file_extension(old_log_file_name)
+  file_ext <- path_ext(old_log_file_name)
   new_log_name <- glue("{old_log_file_path}/{updated_station_name}_{updated_depl_date}_log.{file_ext}")
   file.rename(old_log_file_name, new_log_name)
   return(TRUE)

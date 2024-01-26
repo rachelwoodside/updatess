@@ -62,7 +62,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "old station name", old_station_name, append=TRUE)
   # Replace old station name in station column
   is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "station", new_station_name)
-  completion_record <- c(is_old_name_archived && is_old_name_replaced)
+  completion_record <- c(completion_record, is_old_name_archived && is_old_name_replaced)
   
   # Update Log
   is_log_content_updated <- update_log_data(new_deployment_folder_path, "Location_Description", old_station_name, new_station_name)
@@ -163,7 +163,7 @@ update_deployment_folder <- function() {
   # TODO: Newer deployments will not be listed in the configuration table
   # Consider how to manage this (simply ignore and allow user to check manually?)
 update_config_table_entry <- function(station_name, deployment_date, new_value) {
-  config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_config_tables")
+  config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_config_tables")
   config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
   cb_config_table_file <- glue("{config_table_file_path}/water_quality_cape_breton_configuration.xlsx")
   config_data <- read_spreadsheet_data(config_table_file, "xlsx")
@@ -241,7 +241,7 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
   # archive old log
   archive_log(log_file_path, log_file_name)
   # get file type
-  log_file_extension <- extract_file_extension(log_file_name)
+  log_file_extension <- path_ext(log_file_name)
   # read in log data
   log_data <- read_spreadsheet_data(log_file_name, log_file_extension)
   date_formatted_log_data <- log_data %>% 
