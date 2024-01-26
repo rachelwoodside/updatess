@@ -19,7 +19,8 @@ stations_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/proj
 #string_tracking_sheet <- drive_get("STRING TRACKING")
 string_tracking_sheet <- drive_get("TestSheetForCodeModification")
 change_tracking_sheet <- drive_get("Deployment Change Tracking")
-config_table_folder_path <- "R:/tracking_sheets"
+#config_table_folder_path <- "R:/tracking_sheets"
+config_table_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_config_tables"
 
 # MODIFY HERE!! -------------------------------------------------------------
 

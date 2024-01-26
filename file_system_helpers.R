@@ -5,9 +5,6 @@ library(snakecase)
 library(glue)
 library(fs)
 
-# Assumes that the updatess project is in a directory "updatess", contained in the same directory
-# as the directory which holds all the station folders
-
 #get_absolute_file_path_to_station_folder <- function(station_folders_path, station_name) {
 #  return(file.path(station_folders_path, to_snake_case(station_name)))
 #}
@@ -100,8 +97,8 @@ safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_de
   
 }
 
-safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                                  "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+#safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                                  #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 
 

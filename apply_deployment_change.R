@@ -50,8 +50,6 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   
   # TODO: Delete old deployment folder after successful copy
   # TODO: Check if station folder is new empty and delete if so?
-  
-  # TODO: Write functions to check if data has been correctly copied and old copies deleted
   is_depl_folder_updated <- FALSE
   completion_record <- c(completion_record, is_depl_folder_updated)
   
@@ -74,7 +72,6 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   
   # Update README (at station folder level)
   readme_content <- build_readme_content("station name", old_station_name, new_station_name, rationale, note)
-  # TODO: Fix readme to write to new station folder
   is_readme_updated <- write_readme_file(new_station_folder_path, readme_content)
   completion_record <- c(completion_record, is_readme_updated)
   
