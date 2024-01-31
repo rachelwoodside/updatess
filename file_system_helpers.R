@@ -60,7 +60,7 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   dirs_to_copy <- dir_ls(old_deployment_folder_path, type="directory")
   message(glue("Copying folders from {old_deployment_folder_path}..."))
   for (dir in dirs_to_copy) {
-    message(glue("Copying {dir}"))
+    message(glue("Copying {dir} to {new_deployment_folder_path}"))
     dir_copy(dir, new_deployment_folder_path)
   }
   files_to_copy <- dir_ls(old_deployment_folder_path, type="file")
@@ -72,8 +72,8 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   return(TRUE)
 }
 
-#copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-#                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
   files_to_copy <- dir_ls(old_station_folder_path, type="file")
@@ -85,19 +85,29 @@ copy_station_files <- function(old_station_folder_path, new_station_folder_path)
   return(TRUE)
 }
 
-safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_deployment_folder_path) {
+copy_station_files("../fake_station_folders/birchy_head",
+                      "../fake_station_folders/birchy_head_1")
+
+safe_delete_old_folder <- function(old_folder_path, new_folder_path) {
   # Check that directories that exist in the old deployment folder also exist in the new deployment folder
-  message(glue("Checking that all directories that exist in {old_deployment_folder_path} also exist in {new_deployment_folder_path}..."))
+  message(glue("Checking that all directories that exist in {old_folder_path} also exist in {new_folder_path}..."))
   # Note: recurse option set to true to check nested files
-  old_dirs <- dir_ls(old_deployment_folder_path, type="directory", recurse=TRUE)
-  old_dirs <- map_chr(old_dirs, strip_path_start, old_deployment_folder_path)
-  new_dirs <- dir_ls(new_deployment_folder_path, type="directory", recurse=TRUE)
+  old_dirs <- dir_ls(old_folder_path, type="directory", recurse=TRUE)
+  old_dirs <- map_chr(old_dirs, strip_path_start, old_folder_path)
+  new_dirs <- dir_ls(new_folder_path, type="directory", recurse=TRUE)
+  new_dirs <- map_chr(new_dirs, strip_path_start, new_folder_path)
   dir_diff <- setdiff(old_dirs, new_dirs)
-  message(old_dirs)
+  if (length(dir_diff) != 0) {
+    message("Not all files were copied successfully or in the correct structure. The following files are not in both folders {dir_diff}")
+  } else {
+    message("Files copied successfully, proceeding to delete old files.")
+    dir_delete(old_folder_path)
+    message("Old files deleted.")
+  }
 }
 
-#safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                                  #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+safe_delete_old_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                      "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 # LOG OPERATIONS ---------------------------------------------------------------
 
