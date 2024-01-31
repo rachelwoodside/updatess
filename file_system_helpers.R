@@ -72,13 +72,18 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   return(TRUE)
 }
 
-# TODO: Non recursive copying function to copy any existing files at the station folder level
-copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
-  
-}
-
 #copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
- #                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+#                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+
+copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
+  files_to_copy <- dir_ls(old_station_folder_path, type="file")
+  message(glue("Copying files from {old_station_folder_path}"))
+  for (file in files_to_copy) {
+    message(glue("Copying {file}"))
+    file_copy(file, new_station_folder_path)
+  }
+  return(TRUE)
+}
 
 safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_deployment_folder_path) {
   # Check that directories that exist in the old deployment folder also exist in the new deployment folder
@@ -89,7 +94,6 @@ safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_de
   new_dirs <- dir_ls(new_deployment_folder_path, type="directory", recurse=TRUE)
   dir_diff <- setdiff(old_dirs, new_dirs)
   message(old_dirs)
-  
 }
 
 #safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
