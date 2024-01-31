@@ -5,10 +5,6 @@ library(snakecase)
 library(glue)
 library(fs)
 
-#get_absolute_file_path_to_station_folder <- function(station_folders_path, station_name) {
-#  return(file.path(station_folders_path, to_snake_case(station_name)))
-#}
-
 # GENERIC HELPERS --------------------------------------------------------------
 
 today_as_yyyy_mm_dd_string <- function() {
@@ -35,12 +31,6 @@ get_relative_path_to_station_folder <- function(rel_stations_folder_path, statio
   return(station_folder_path)
 }
 
-#get_absolute_path_to_depl_folder <- function(station_folder_path, station_name, depl_date) {
-#  snake_case_station_name <- to_snake_case(station_name)
-#  depl_folder <- paste(snake_case_station_name, depl_date, sep="_")
-#  return(file.path(station_folder_path, snake_case_station_name, depl_folder))
-#}
-
 # TODO: Add check to see if directory exists?
 get_relative_path_to_depl_folder <- function(rel_station_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
@@ -65,8 +55,7 @@ strip_path_start <- function(full_path, path_start) {
 }
 
 # COPYING AND DELETING OPERATIONS ----------------------------------------------
-# TODO: Update this to use a relative path, passed to the function
-# This should ensure that we avoid the path size limit
+
 copy_deployment_files <- function(old_deployment_folder_path, new_deployment_folder_path) {
   dirs_to_copy <- dir_ls(old_deployment_folder_path, type="directory")
   message(glue("Copying folders from {old_deployment_folder_path}..."))
@@ -83,8 +72,13 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   return(TRUE)
 }
 
-#copy_deployment_files("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head/birchy_head_2018-02-20",
- #                     "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+# TODO: Non recursive copying function to copy any existing files at the station folder level
+copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
+  
+}
+
+#copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+ #                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_deployment_folder_path) {
   # Check that directories that exist in the old deployment folder also exist in the new deployment folder
@@ -100,8 +94,6 @@ safe_delete_old_deployment_folder <- function(old_deployment_folder_path, new_de
 
 #safe_delete_old_deployment_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
                                   #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
-
-
 
 # LOG OPERATIONS ---------------------------------------------------------------
 
@@ -148,11 +140,6 @@ rename_log <- function(old_log_file_path, old_log_file_name, updated_station_nam
   return(TRUE)
 }
 
-#new_log_name <- rename_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
-#           "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv",
-#           "Birchy Head 1",
-#           "2018-02-20")
-
 archive_log <- function(log_file_path, log_file_name) {
   # Create archive folder if it does not exist
   archive_path <- glue("{log_file_path}/archive")
@@ -164,9 +151,6 @@ archive_log <- function(log_file_path, log_file_name) {
   message(glue("Copying {archive_log_file_name_local} from {log_file_path} to {archive_path}"))
   file.copy(log_file_name, archive_path, copy.date=TRUE)
 }
-
-#archive_log("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log",
-#            "R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders/birchy_head/birchy_head_2018-02-20/Log/Birchy Head 2018-02-20 Log.csv")
 
 # CREATING NEW FOLDERS ---------------------------------------------------------
 
@@ -187,8 +171,6 @@ create_deployment_folder <- function(station_folders_path, station_name, deploym
   return(new_deployment_folder_path)
 }
 
-# TODO: Check that snake case conversion works even if snake case is already provided
-# for use with create_deployment_folder() function
 create_station_folder <- function(station_folders_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
   new_station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
@@ -202,10 +184,3 @@ create_station_folder <- function(station_folders_path, station_name) {
   }
   return(new_station_folder_path)
 }
-
-#create_station_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
-                      #"A New Station")
-
-#create_deployment_folder("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/updatess/fake_station_folders",
-                      #"A New Station",
-                      #"2018-02-20")

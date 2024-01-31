@@ -9,7 +9,6 @@ source("file_system_helpers.R")
 
 read_spreadsheet_data <- function(file_path, file_type) {
   message(glue("Reading spreadsheet data from: {file_path}"))
-  message(glue("File type is: {file_type}"))
   if (file_type == "xls" | file_type == "xlsx") {
     file <- read_excel(file_path, na = c("", "n/a", "N/A"))
   }
