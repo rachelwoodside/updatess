@@ -32,49 +32,45 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   # Get relevant directory structure from old values
   message("Resolving current directory structure...")
   rel_stations_folder_path <- get_relative_path_from_wd_to_stations_folder(stations_folder_path)
-  message(glue("Stations folder path relative to current working directory: {rel_stations_folder_path}"))
   station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, old_station_name)
-  message(glue("Specific station folder path relative to current working directory: {station_folder_path}"))
   deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, old_station_name, depl_date)
-  message(glue("Deployment folder path relative to current working directory: {deployment_folder_path}"))
   
+  # TODO: Check if the station exists, both in the folder structure and Area Info
+  
+  message("UPDATING FOLDER STRUCTURE")
   # Create new station and deployment folder structure
-  # This will attempt to create the station folder, in case create_new_station() was not called prior
   new_station_folder_path <- create_station_folder(rel_stations_folder_path, new_station_name)
   new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, new_station_name, depl_date)
   
-  # Copy content to new deployment folder
-  are_deployment_files_moved <- copy_deployment_files(deployment_folder_path, new_deployment_folder_path)
-  # TODO: Do we need to copy content to the new station folder - i.e. are there notes that would still apply 
-  # even after a station name change
-  
-  # TODO: Delete old deployment folder after successful copy
-  # TODO: Check if station folder is new empty and delete if so?
-  is_depl_folder_updated <- FALSE
+  # Copy content to new folders and delete old folders and contents
+  are_deployment_files_copied <- copy_deployment_files(deployment_folder_path, new_deployment_folder_path)
+  are_station_files_copied <- copy_station_files(station_folder_path, new_station_folders_path)
+  are_deployment_files_deleted <- safe_delete_old_folder(deployment_folder_path, new_deployment_folder_path)
+  # TODO: Check if station folder is now empty and delete if so?
+  is_depl_folder_updated <- (are_deployment_files_copied && are_station_files_copied && are_deployment_files_deleted)
   completion_record <- c(completion_record, is_depl_folder_updated)
   
-  # Update Station Folder
-  #is_station_folder_updated <- FALSE
-  #completion_record <- c(completion_record, is_station_folder_updated)
-  
-  # Update String Tracking Sheet
+  message("UPDATING STRING TRACKING SHEET")
   # Write old station name into old station name column, appending if there is already a value there
   is_old_name_archived <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "old station name", old_station_name, append=TRUE)
   # Replace old station name in station column
   is_old_name_replaced <- update_string_tracking_column(string_tracking_sheet, old_station_name, depl_date, "station", new_station_name)
   completion_record <- c(completion_record, is_old_name_archived && is_old_name_replaced)
   
+  message("UPDATING LOG CONTENTS AND NAME")
   # Update Log
   is_log_content_updated <- update_log_data(new_deployment_folder_path, "Location_Description", old_station_name, new_station_name)
   # Update Log Name
   is_log_name_updated <- update_log_name(new_deployment_folder_path, new_station_name, depl_date)
   completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
+  message("UPDATING README IN THE STATION FOLDER")
   # Update README (at station folder level)
   readme_content <- build_readme_content("station name", old_station_name, new_station_name, rationale, note)
   is_readme_updated <- write_readme_file(new_station_folder_path, readme_content)
   completion_record <- c(completion_record, is_readme_updated)
   
+  message("UPDATING CONFIGURATION TABLE")
   # Update Config Table
   is_config_table_updated <- update_config_table_entry(old_station_name, depl_date, new_station_name)
   completion_record <- c(completion_record, is_config_table_updated)
@@ -127,6 +123,25 @@ apply_waterbody_change <- function() {
   # TODO: Update Config Table
   return(completion_record)
 }
+
+# FUNCTIONS TO MANAGE STATIONS ---------------------------------------------------
+
+# TODO: Write function to check if station exists
+# Should check Area Info and folder structure
+check_if_station_exists <- function(station_folder_path, area_info_sheet_data, station_name) {
+  station_folder_exists <- dir_exists(station_folder_path)
+  station_cell <- find_area_info_cell(station_name, "station")
+}
+
+create_new_station <- function(station_name, waterbody, county, latitude, longitude, note) {
+  # Create station folder
+  create_station_folder(station_folders_path, station_name)
+  # Update Area Info
+  new_area_info_row <- c(station_name, waterbody, county, latitude, longitude, note)
+  new_area_info_row_df <- as.data.frame(t(new_area_info_row), stringsAsFactors=FALSE)
+  sheet_append(string_tracking_sheet, new_area_info_row_df, sheet = "Area Info")
+}
+
 
 # FUNCTIONS FOR EACH POTENTIAL CHANGE TO BE MADE ----------------------------
 

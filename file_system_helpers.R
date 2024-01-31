@@ -72,8 +72,8 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   return(TRUE)
 }
 
-copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                     "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+#copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                     #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
   files_to_copy <- dir_ls(old_station_folder_path, type="file")
@@ -85,8 +85,8 @@ copy_station_files <- function(old_station_folder_path, new_station_folder_path)
   return(TRUE)
 }
 
-copy_station_files("../fake_station_folders/birchy_head",
-                      "../fake_station_folders/birchy_head_1")
+#copy_station_files("../fake_station_folders/birchy_head",
+                      #"../fake_station_folders/birchy_head_1")
 
 safe_delete_old_folder <- function(old_folder_path, new_folder_path) {
   # Check that directories that exist in the old deployment folder also exist in the new deployment folder
@@ -99,15 +99,17 @@ safe_delete_old_folder <- function(old_folder_path, new_folder_path) {
   dir_diff <- setdiff(old_dirs, new_dirs)
   if (length(dir_diff) != 0) {
     message("Not all files were copied successfully or in the correct structure. The following files are not in both folders {dir_diff}")
+    return(FALSE)
   } else {
     message("Files copied successfully, proceeding to delete old files.")
     dir_delete(old_folder_path)
     message("Old files deleted.")
+    return(TRUE)
   }
 }
 
-safe_delete_old_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                      "../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
+#safe_delete_old_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
+                      #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 # LOG OPERATIONS ---------------------------------------------------------------
 
@@ -170,7 +172,7 @@ archive_log <- function(log_file_path, log_file_name) {
 
 # required for station name or deployment date changes
 create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {
-  # Make sure the station folder has already been created so the path to the station folder should exist
+  # TODO: Remove call to create station folder and simply check it exists first
   new_station_folder_path <- create_station_folder(station_folders_path, station_name)
   snake_case_station_name <- to_snake_case(station_name)
   new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
