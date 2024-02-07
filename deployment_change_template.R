@@ -1,4 +1,3 @@
-source("create_new_station.R")
 source("apply_deployment_change.R")
 
 # TODO: Should this erase previously processed data by default? -- use a boolean param?
@@ -43,4 +42,14 @@ apply_deployment_change(
   rationale = "Reflect patterns in data",
   note = "this is a test deployment date change"
 )
+
+create_new_station(
+  station_name = "New Test Station",
+  waterbody = "Test Waterbody",
+  county = "Test County",
+  latitude = -45.28888,
+  longitude = -61.6475,
+  note = "this is a test new station"
+)
+
 

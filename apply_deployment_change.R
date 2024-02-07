@@ -32,20 +32,28 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   # Get relevant directory structure from old values
   message("Resolving current directory structure...")
   rel_stations_folder_path <- get_relative_path_from_wd_to_stations_folder(stations_folder_path)
-  station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, old_station_name)
-  deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, old_station_name, depl_date)
+  old_station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, old_station_name)
+  new_station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, new_station_name)
+  old_deployment_folder_path <- get_relative_path_to_depl_folder(old_station_folder_path, old_station_name, depl_date)
   
-  # TODO: Check if the station exists, both in the folder structure and Area Info
+  #Check if the station exists, both in the folder structure and Area Info
+  if (!check_station_folder_exists(new_station_folder_path)) {
+    stop("Station folder structure does not exist. Please run create_new_station() to create it.")
+  }
+  if (!check_station_area_info_exists(ss, new_station_name)) {
+    stop("Station area info does not exist. Please run create_new_station() to create it.")
+  }
+  stop("END HERE FOR TESTING PURPOSES")
   
   message("UPDATING FOLDER STRUCTURE")
   # Create new station and deployment folder structure
-  new_station_folder_path <- create_station_folder(rel_stations_folder_path, new_station_name)
+  #new_station_folder_path <- create_station_folder(rel_stations_folder_path, new_station_name)
   new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, new_station_name, depl_date)
   
   # Copy content to new folders and delete old folders and contents
-  are_deployment_files_copied <- copy_deployment_files(deployment_folder_path, new_deployment_folder_path)
-  are_station_files_copied <- copy_station_files(station_folder_path, new_station_folders_path)
-  are_deployment_files_deleted <- safe_delete_old_folder(deployment_folder_path, new_deployment_folder_path)
+  are_deployment_files_copied <- copy_deployment_files(old_deployment_folder_path, new_deployment_folder_path)
+  are_station_files_copied <- copy_station_files(old_station_folder_path, new_station_folders_path)
+  are_deployment_files_deleted <- safe_delete_old_folder(old_deployment_folder_path, new_deployment_folder_path)
   # TODO: Check if station folder is now empty and delete if so?
   is_depl_folder_updated <- (are_deployment_files_copied && are_station_files_copied && are_deployment_files_deleted)
   completion_record <- c(completion_record, is_depl_folder_updated)
@@ -126,9 +134,22 @@ apply_waterbody_change <- function() {
 
 # FUNCTIONS TO MANAGE STATIONS ---------------------------------------------------
 
+check_station_folder_exists <- function(station_folder_path) {
+  return(dir_exists(station_folder_path))
+}
+
+check_station_area_info_exists <- function(ss, station_name) {
+  sheet_data <- read_sheet(ss, sheet="Area Info")
+  area_info_cell_found <- find_area_info_cell(sheet_data, station_name, "station")
+  if (is.character(area_info_cell_found)) {
+    return(TRUE)
+  }
+  return(FALSE)
+}
+
 create_new_station <- function(station_folder_path, ss, station_name, waterbody, county, latitude, longitude, note) {
   # Create station folder if it does not exist
-  if (!dir_exists(station_folder_path)) {
+  if (!check_station_folder_exists(station_folder_path)) {
     # Create station folder
     create_station_folder(station_folders_path, station_name)
     message("Station folder created")
@@ -142,7 +163,6 @@ create_new_station <- function(station_folder_path, ss, station_name, waterbody,
     message("Station row in Area Info created")
   }
 }
-
 
 # FUNCTIONS FOR EACH POTENTIAL CHANGE TO BE MADE ----------------------------
 
