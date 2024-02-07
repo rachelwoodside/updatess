@@ -126,20 +126,21 @@ apply_waterbody_change <- function() {
 
 # FUNCTIONS TO MANAGE STATIONS ---------------------------------------------------
 
-# TODO: Write function to check if station exists
-# Should check Area Info and folder structure
-check_if_station_exists <- function(station_folder_path, area_info_sheet_data, station_name) {
-  station_folder_exists <- dir_exists(station_folder_path)
-  station_cell <- find_area_info_cell(station_name, "station")
-}
-
-create_new_station <- function(station_name, waterbody, county, latitude, longitude, note) {
-  # Create station folder
-  create_station_folder(station_folders_path, station_name)
-  # Update Area Info
-  new_area_info_row <- c(station_name, waterbody, county, latitude, longitude, note)
-  new_area_info_row_df <- as.data.frame(t(new_area_info_row), stringsAsFactors=FALSE)
-  sheet_append(string_tracking_sheet, new_area_info_row_df, sheet = "Area Info")
+create_new_station <- function(station_folder_path, ss, station_name, waterbody, county, latitude, longitude, note) {
+  # Create station folder if it does not exist
+  if (!dir_exists(station_folder_path)) {
+    # Create station folder
+    create_station_folder(station_folders_path, station_name)
+    message("Station folder created")
+  } 
+  # Append row in area info if it does not exist
+  sheet_data <- read_sheet(ss, sheet="Area Info")
+  if (!find_area_info_cell(station_name, "station")) {
+    new_area_info_row <- c(station_name, waterbody, county, latitude, longitude, note)
+    new_area_info_row_df <- as.data.frame(t(new_area_info_row), stringsAsFactors=FALSE)
+    sheet_append(string_tracking_sheet, new_area_info_row_df, sheet = "Area Info")
+    message("Station row in Area Info created")
+  }
 }
 
 
@@ -163,20 +164,8 @@ update_area_info_column <- function(ss, station_name, column_name, new_data, app
   return(TRUE)
 }
 
-
-update_station_folder <- function() {
-  # check for existence of station folder
-  # move everything
-  # TODO: consider/test how moving will work if file/folder already exists with same name?
-}
-
-update_deployment_folder <- function() {
-  # rename deployment folder
-  # TODO: consider/test how renaming will work if file/folder already exists with same name?
-}
-
-  # TODO: Newer deployments will not be listed in the configuration table
-  # Consider how to manage this (simply ignore and allow user to check manually?)
+# TODO: Newer deployments will not be listed in the configuration table
+# Consider how to manage this (simply ignore and allow user to check manually?)
 update_config_table_entry <- function(station_name, deployment_date, new_value) {
   config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_config_tables")
   config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
