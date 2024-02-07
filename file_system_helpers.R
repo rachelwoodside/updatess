@@ -24,14 +24,12 @@ extract_file_extension <- function(file_name) {
 
 # PATH FINDING HELPERS ---------------------------------------------------------
 
-# TODO: Add check to see if directory exists?
 get_relative_path_to_station_folder <- function(rel_stations_folder_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
   station_folder_path <- path_norm(glue("{rel_stations_folder_path}/{snake_case_station_name}"))
   return(station_folder_path)
 }
 
-# TODO: Add check to see if directory exists?
 get_relative_path_to_depl_folder <- function(rel_station_folder_path, station_name, depl_date) {
   snake_case_station_name <- to_snake_case(station_name)
   depl_folder_path <- path_norm(glue("{rel_station_folder_path}/{snake_case_station_name}_{depl_date}"))
@@ -57,19 +55,24 @@ strip_path_start <- function(full_path, path_start) {
 # COPYING AND DELETING OPERATIONS ----------------------------------------------
 
 copy_deployment_files <- function(old_deployment_folder_path, new_deployment_folder_path) {
-  dirs_to_copy <- dir_ls(old_deployment_folder_path, type="directory")
-  message(glue("Copying folders from {old_deployment_folder_path}..."))
-  for (dir in dirs_to_copy) {
-    message(glue("Copying {dir} to {new_deployment_folder_path}"))
-    dir_copy(dir, new_deployment_folder_path)
+  # Check deployment directory exists
+  if (dir_exists(new_deployment_folder_path)) {
+    dirs_to_copy <- dir_ls(old_deployment_folder_path, type="directory")
+    message(glue("Copying folders from {old_deployment_folder_path}..."))
+    for (dir in dirs_to_copy) {
+      message(glue("Copying {dir} to {new_deployment_folder_path}"))
+      dir_copy(dir, new_deployment_folder_path)
+    }
+    files_to_copy <- dir_ls(old_deployment_folder_path, type="file")
+    message(glue("Copying files from {old_deployment_folder_path}..."))
+    for (file in files_to_copy) {
+      message(glue("Copying {file}"))
+      file_copy(file, new_deployment_folder_path)
+    }
+    return(TRUE)
+  } else {
+    stop("Deployment folder does not exist, though it should have been created in the deployment change process. Please check the file structure.")
   }
-  files_to_copy <- dir_ls(old_deployment_folder_path, type="file")
-  message(glue("Copying files from {old_deployment_folder_path}..."))
-  for (file in files_to_copy) {
-    message(glue("Copying {file}"))
-    file_copy(file, new_deployment_folder_path)
-  }
-  return(TRUE)
 }
 
 #copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
@@ -171,27 +174,30 @@ archive_log <- function(log_file_path, log_file_name) {
 # CREATING NEW FOLDERS ---------------------------------------------------------
 
 # required for station name or deployment date changes
+# TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
+# if condition to make sure we don't get a warning for trying to create it when it exists
 create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {
-  # TODO: Remove call to create station folder and simply check it exists first
-  new_station_folder_path <- create_station_folder(station_folders_path, station_name)
   snake_case_station_name <- to_snake_case(station_name)
-  new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
-  # TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
-  # if condition to make sure we don't get a warning for trying to create it when it exists
-  if (!dir.exists(new_deployment_folder_path)) {
-    dir.create(new_deployment_folder_path)
-    message(glue("Deployment folder created: '{new_deployment_folder_path}'\n"))
+  # Confirm that station folders and station folder paths exist
+  if (dir_exists(station_folders_path) && dir_exists(glue("{station_folders_path}/{snake_case_station_name}"))) {
+    new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
+    if (!dir.exists(new_deployment_folder_path)) {
+      dir.create(new_deployment_folder_path)
+      message(glue("Deployment folder created: '{new_deployment_folder_path}'\n"))
+    } else {
+      message(glue("Deployment folder already exists. Continuing execution.\n"))
+    }
+    return(new_deployment_folder_path)
   } else {
-    message(glue("Deployment folder already exists. Continuing execution.\n"))
+    stop("This path to the stations folder and/or the station folder do not exist. Please check the directory structure.")
   }
-  return(new_deployment_folder_path)
 }
 
+# TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
+# if condition to make sure we don't get a warning for trying to create it when it exists
 create_station_folder <- function(station_folders_path, station_name) {
   snake_case_station_name <- to_snake_case(station_name)
   new_station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
-  # TODO: Reformulate this with trycatch? Could lead to confusing errors if path passed to function is not valid?
-  # if condition to make sure we don't get a warning for trying to create it when it exists
   if (!dir.exists(new_station_folder_path)) {
     dir.create(new_station_folder_path)
     message(glue("Station folder created: '{new_station_folder_path}'\n"))
