@@ -75,21 +75,19 @@ copy_deployment_files <- function(old_deployment_folder_path, new_deployment_fol
   }
 }
 
-#copy_deployment_files("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                     #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
-
 copy_station_files <- function(old_station_folder_path, new_station_folder_path) {
-  files_to_copy <- dir_ls(old_station_folder_path, type="file")
-  message(glue("Copying files from {old_station_folder_path}"))
-  for (file in files_to_copy) {
-    message(glue("Copying {file}"))
-    file_copy(file, new_station_folder_path)
+  if (dir_exists(new_station_folder_path)) {
+    files_to_copy <- dir_ls(old_station_folder_path, type="file")
+    message(glue("Copying files from {old_station_folder_path}"))
+    for (file in files_to_copy) {
+      message(glue("Copying {file}"))
+      file_copy(file, new_station_folder_path)
+    }
+    return(TRUE)
+  } else {
+    stop("Station folder does not exist. This should have been checked earlier in the code. If you're encountering this error, please check the file structure.")
   }
-  return(TRUE)
 }
-
-#copy_station_files("../fake_station_folders/birchy_head",
-                      #"../fake_station_folders/birchy_head_1")
 
 safe_delete_old_folder <- function(old_folder_path, new_folder_path) {
   # Check that directories that exist in the old deployment folder also exist in the new deployment folder
@@ -110,9 +108,6 @@ safe_delete_old_folder <- function(old_folder_path, new_folder_path) {
     return(TRUE)
   }
 }
-
-#safe_delete_old_folder("../fake_station_folders/birchy_head/birchy_head_2018-02-20",
-                      #"../fake_station_folders/birchy_head_1/birchy_head_1_2018-02-20")
 
 # LOG OPERATIONS ---------------------------------------------------------------
 
