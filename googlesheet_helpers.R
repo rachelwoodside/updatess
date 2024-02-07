@@ -21,6 +21,9 @@ map_col_names_to_letters <- function(sheet_data) {
 }
 
 find_string_tracking_cell <- function(sheet_data, station_name, depl_date, column_name) {
+  # Default value for cell_id is FALSE
+  cell_id <- FALSE
+  
   # Convert date string to POSIXct? 
   # TODO: Remove and ensure that depl_date is provided as posixct in the first place?
   depl_date <- as.POSIXct(paste(depl_date, "0:00:00"), tz="GMT")
@@ -30,25 +33,35 @@ find_string_tracking_cell <- function(sheet_data, station_name, depl_date, colum
   # column names in the Google sheet but not in the tibble
   row <- sheet_data %>% with(which(station==station_name & deployment==depl_date)) + 1
   
-  # Map the names of the columns to letters as in the Google sheet
-  col_name_to_letter_map <- map_col_names_to_letters(sheet_data)
+  if (!is_empty(row)) {
+    # Map the names of the columns to letters as in the Google sheet
+    col_name_to_letter_map <- map_col_names_to_letters(sheet_data)
+    
+    # Get cell identifier based on row number and column name to letter map
+    cell_id <- paste(col_name_to_letter_map[column_name], row, sep="")
+  }
   
-  # Get cell identifier based on row number and column name to letter map
-  cell_id <- paste(col_name_to_letter_map[column_name], row, sep="")
   return(cell_id)
 }
 
 find_area_info_cell <- function(sheet_data, station_name, column_name) {
+  # Default value for cell_id is FALSE
+  cell_id <- FALSE
+  
   # Identify row to edit based on station name
   # Note: increment by one to account for the fact that there is a row for
   # column names in the Google sheet but not in the tibble
   row <- sheet_data %>% with(which(station==station_name)) + 1
   
-  # Map the names of columns to letters as in the Google sheet
-  col_name_to_letter_map <- map_col_names_to_letters(sheet_data)
+  if (!is_empty(row)) {
+    # Map the names of the columns to letters as in the Google sheet
+    col_name_to_letter_map <- map_col_names_to_letters(sheet_data)
+    
+    # Get cell identifier based on row number and column name to letter map
+    cell_id <- paste(col_name_to_letter_map[column_name], row, sep="")
+  }
   
-  # Get cell identifier based on row number and column name to letter map
-  cell_id <- paste(col_name_to_letter_map[column_name], row, sep="")
+  return(cell_id)
 }
 
 write_google_sheet_cell <- function(ss, sheet_tab, new_data, cell_id, append) {

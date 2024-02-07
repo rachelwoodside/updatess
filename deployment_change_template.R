@@ -44,12 +44,3 @@ apply_deployment_change(
   note = "this is a test deployment date change"
 )
 
-create_new_station(
-  station_name = "New Test Station",
-  waterbody = "Test Waterbody",
-  county = "Test County",
-  latitude = -45.28888,
-  longitude = -61.6475,
-  note = "this is a test new station"
-)
-
