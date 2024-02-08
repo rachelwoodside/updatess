@@ -253,6 +253,7 @@ update_log_name <- function(deployment_folder_path, updated_station_name, update
   return(rename_log(log_file_path, log_file_name, updated_station_name, updated_depl_date))
 }
 
+
 update_log_data <- function(deployment_folder_path, column_to_update, old_value, new_value) {
   # retrieve log file path and name
   log_file_path <- extract_log_folder_path(deployment_folder_path)
@@ -265,14 +266,17 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
   log_file_extension <- path_ext(log_file_name)
   # read in log data
   log_data <- read_spreadsheet_data(log_file_name, log_file_extension)
-  date_formatted_log_data <- log_data %>% 
+  # format log data to ensure date and time types are interpreted correctly
+  formatted_log_data <- log_data %>% 
     mutate(Deployment = ymd(Deployment)) %>%
-    mutate(Retrieval = ymd(Retrieval))
+    mutate(Retrieval = ymd(Retrieval)) %>%
+    mutate(`time of deployment` = ymd_hms(`time of deployment`))
   # TODO: Check that the log value is in fact the provided old value to make sure we are looking at the right column?
-  # TODO: Type checking (during testing I replaced a string with a date and had to switch it back manually through the log)
-  updated_log_data <- date_formatted_log_data %>% 
-    mutate_at(vars(column_to_update), ~ replace(., TRUE, new_value))
+  updated_log_data <- formatted_log_data %>% 
+    mutate_at(select(all_of(column_to_update)), ~ replace(., TRUE, new_value))
   # write new data to log file 
   write_spreadsheet_data(updated_log_data, log_file_name, log_file_extension)
   return(TRUE)
 }
+
+
