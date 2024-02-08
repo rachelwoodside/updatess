@@ -1,17 +1,15 @@
 source("googlesheet_helpers.R")
 source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
-library(fs)
 
 apply_deployment_change <- function(stations_folder_path, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
-  # TODO: Add error handler to manage errors and ensure partially completed operations are recorded as done in completion record
   if (field_to_change == "station name") {
     completion_record <- apply_station_name_change(stations_folder_path, station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "deployment date") {
-    completion_record <- apply_deployment_date_change(station_name, depl_date, new_value)
+    completion_record <- apply_deployment_date_change(stations_folder_path, station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "retrieval date") {
     completion_record <- apply_retrieval_date_change()
   } else if (field_to_change == "waterbody") {
@@ -36,7 +34,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   new_station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, new_station_name)
   old_deployment_folder_path <- get_relative_path_to_depl_folder(old_station_folder_path, old_station_name, depl_date)
   
-  #Check if the station exists, both in the folder structure and Area Info
+  # Check if the new station exists, both in the folder structure and Area Info
   if (!check_station_folder_exists(new_station_folder_path)) {
     stop("Station folder structure does not exist. Please run create_new_station() to create it.")
   }
@@ -45,7 +43,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   }
   
   message("UPDATING FOLDER STRUCTURE")
-  # Create new deployment folder - station folder should either already exist or be created by 
+  # Create new deployment folder - station folder should either have already existed or been created
   new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, new_station_name, depl_date)
   
   # Copy content to new folders and delete old folders and contents
@@ -84,27 +82,52 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
 
 
 
-apply_deployment_date_change <- function(station_name, depl_date, new_value) {
+apply_deployment_date_change <- function(stations_folder_path, station_name, old_depl_date, new_depl_date, rationale, note) {
   completion_record <- c()
   
-  # TODO: Update String Tracking
+  # Get relevant directory structure from old values
+  message("Resolving current directory structure...")
+  rel_stations_folder_path <- get_relative_path_from_wd_to_stations_folder(stations_folder_path)
+  station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, station_name)
+  old_deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, station_name, depl_date)
+  
+  # Update Folder Structure
+  message("UPDATING FOLDER STRUCTURE")
+  # Create new deployment folder - station folder should either already exist or be created by 
+  new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, station_name, new_depl_date)
+  
+  # Copy content to new folders and delete old folders and contents
+  are_deployment_files_copied <- copy_deployment_files(old_deployment_folder_path, new_deployment_folder_path)
+  are_deployment_files_deleted <- safe_delete_old_folder(old_deployment_folder_path, new_deployment_folder_path)
+  is_depl_folder_updated <- (are_deployment_files_copied && are_deployment_files_deleted)
+  completion_record <- c(completion_record, is_depl_folder_updated)
+  
+  # Update String Tracking
+  message("UPDATING STRING TRACKING SHEET")
+  # Replace old deployment date in deployment column
+  is_old_date_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, old_depl_date, "deployment", new_depl_date)
+  completion_record <- c(completion_record, is_old_name_archived && is_old_date_replaced)
   completion_record <- c(completion_record, FALSE)
   
-  # TODO: Update Log Content
-  # TODO: Update Log Name
-  completion_record <- c(completion_record, FALSE)
+  # Update Log Content and Name
+  message("UPDATING LOG CONTENTS AND NAME")
+  # Update Log
+  is_log_content_updated <- update_log_data(new_deployment_folder_path, "Deployment", old_depl_date, new_depl_date)
+  # Update Log Name
+  is_log_name_updated <- update_log_name(new_deployment_folder_path, station_name, new_depl_date)
+  completion_record <- c(completion_record, is_log_content_updated && is_log_name_updated)
   
-  # TODO: Update README (at deployment folder level)
-  completion_record <- c(completion_record, FALSE)
-  
-  # TODO: Update Deployment Folder
-  completion_record <- c(completion_record, FALSE)
-  
-  # Update Station Folder N/A
-  completion_record <- c(completion_record, "N/A")
+  # Update README (at deployment folder level)
+  message("UPDATING README IN THE DEPLOYMENT FOLDER")
+  readme_content <- build_readme_content("deployment date", old_depl_date, new_depl_date, rationale, note)
+  is_readme_updated <- write_readme_file(new_depl_folder_path, readme_content)
+  completion_record <- c(completion_record, is_readme_updated)
 
-  # TODO: Update Config Table
-  completion_record <- c(completion_record, FALSE)
+  # Update Config Table
+  message("UPDATING CONFIGURATION TABLE")
+  # Update Config Table
+  is_config_table_updated <- update_config_table_entry(station_name, old_depl_date, new_depl_date)
+  completion_record <- c(completion_record, is_config_table_updated)
 
   return(completion_record)
 }
