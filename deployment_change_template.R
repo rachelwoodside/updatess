@@ -25,15 +25,18 @@ config_table_folder_path <- "R:/program_documents/cmp_hiring/intern/2023_rachel/
 
 apply_deployment_change(
   stations_folder_path = stations_folder_path,
+  string_tracking_sheet = string_tracking_sheet,
   station_name = "Birchy Head",
   depl_date = "2018-02-20", 
   field_to_change = "station name", 
   old_value = "Birchy Head",
   new_value = "Birchy Head 1", 
   rationale = "Conflict with NSDFA station name",
-  note = "this is a test station name change")
+  note = "this is a test station name change"
+)
 
 apply_deployment_change(
+  stations_folder_path = stations_folder_path,
   station_name = "Birchy Head",
   depl_date = "2018-02-20", 
   field_to_change = "deployment date", 
@@ -44,12 +47,14 @@ apply_deployment_change(
 )
 
 create_new_station(
-  station_name = "New Test Station",
-  waterbody = "Test Waterbody",
-  county = "Test County",
-  latitude = -45.28888,
-  longitude = -61.6475,
-  note = "this is a test new station"
+  stations_folder_path = stations_folder_path,
+  ss = string_tracking_sheet,
+  station_name = "Birchy Head 1",
+  waterbody = "St. Margarets Bay",
+  county = "Lunenburg",
+  latitude = 44.570026,
+  longitude = -64.03449956,
+  note = ""
 )
 
 

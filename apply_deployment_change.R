@@ -2,12 +2,12 @@ source("googlesheet_helpers.R")
 source("file_system_helpers.R")
 source("excel_sheet_helpers.R")
 
-apply_deployment_change <- function(stations_folder_path, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
+apply_deployment_change <- function(stations_folder_path, string_tracking_sheet, station_name, depl_date, field_to_change, old_value, new_value, rationale, note="") {
   # start building tracking sheet row
   tracking_sheet_row <- c(station_name, depl_date, field_to_change, old_value, new_value, rationale, today_as_yyyy_mm_dd_string())
   # TODO: Add checks for old value to match new value in the case of station name and deployment date? Also that new value is not the same as old value? maybe also check for format?
   if (field_to_change == "station name") {
-    completion_record <- apply_station_name_change(stations_folder_path, station_name, depl_date, new_value, rationale, note)
+    completion_record <- apply_station_name_change(stations_folder_path, string_tracking_sheet, station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "deployment date") {
     completion_record <- apply_deployment_date_change(stations_folder_path, station_name, depl_date, new_value, rationale, note)
   } else if (field_to_change == "retrieval date") {
@@ -24,7 +24,7 @@ apply_deployment_change <- function(stations_folder_path, station_name, depl_dat
   sheet_append(change_tracking_sheet, tracking_sheet_row_df, sheet = "Water Quality")
 }
 
-apply_station_name_change <- function(stations_folder_path, old_station_name, depl_date, new_station_name, rationale, note) {
+apply_station_name_change <- function(stations_folder_path, string_tracking_sheet, old_station_name, depl_date, new_station_name, rationale, note) {
   completion_record <- c()
   
   # Get relevant directory structure from old values
@@ -38,7 +38,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   if (!check_station_folder_exists(new_station_folder_path)) {
     stop("Station folder structure does not exist. Please run create_new_station() to create it.")
   }
-  if (!check_station_area_info_exists(ss, new_station_name)) {
+  if (!check_station_area_info_exists(string_tracking_sheet, new_station_name)) {
     stop("Station area info does not exist. Please run create_new_station() to create it.")
   }
   
@@ -48,7 +48,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   
   # Copy content to new folders and delete old folders and contents
   are_deployment_files_copied <- copy_deployment_files(old_deployment_folder_path, new_deployment_folder_path)
-  are_station_files_copied <- copy_station_files(old_station_folder_path, new_station_folders_path)
+  are_station_files_copied <- copy_station_files(old_station_folder_path, new_station_folder_path)
   are_deployment_files_deleted <- safe_delete_old_folder(old_deployment_folder_path, new_deployment_folder_path)
   is_depl_folder_updated <- (are_deployment_files_copied && are_station_files_copied && are_deployment_files_deleted)
   completion_record <- c(completion_record, is_depl_folder_updated)
@@ -75,7 +75,7 @@ apply_station_name_change <- function(stations_folder_path, old_station_name, de
   
   message("UPDATING CONFIGURATION TABLE")
   # Update Config Table
-  is_config_table_updated <- update_config_table_entry(old_station_name, depl_date, new_station_name)
+  is_config_table_updated <- update_config_table_entry(old_station_name, "Station_Name", depl_date, new_station_name)
   completion_record <- c(completion_record, is_config_table_updated)
   return(completion_record)
 }
@@ -89,11 +89,11 @@ apply_deployment_date_change <- function(stations_folder_path, station_name, old
   message("Resolving current directory structure...")
   rel_stations_folder_path <- get_relative_path_from_wd_to_stations_folder(stations_folder_path)
   station_folder_path <- get_relative_path_to_station_folder(rel_stations_folder_path, station_name)
-  old_deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, station_name, depl_date)
+  old_deployment_folder_path <- get_relative_path_to_depl_folder(station_folder_path, station_name, old_depl_date)
   
   # Update Folder Structure
   message("UPDATING FOLDER STRUCTURE")
-  # Create new deployment folder - station folder should either already exist or be created by 
+  # Create new deployment folder - station folder should either already exist or be created by station creation function
   new_deployment_folder_path <- create_deployment_folder(rel_stations_folder_path, station_name, new_depl_date)
   
   # Copy content to new folders and delete old folders and contents
@@ -106,7 +106,7 @@ apply_deployment_date_change <- function(stations_folder_path, station_name, old
   message("UPDATING STRING TRACKING SHEET")
   # Replace old deployment date in deployment column
   is_old_date_replaced <- update_string_tracking_column(string_tracking_sheet, station_name, old_depl_date, "deployment", new_depl_date)
-  completion_record <- c(completion_record, is_old_name_archived && is_old_date_replaced)
+  completion_record <- c(completion_record, is_old_date_replaced)
   completion_record <- c(completion_record, FALSE)
   
   # Update Log Content and Name
@@ -126,7 +126,7 @@ apply_deployment_date_change <- function(stations_folder_path, station_name, old
   # Update Config Table
   message("UPDATING CONFIGURATION TABLE")
   # Update Config Table
-  is_config_table_updated <- update_config_table_entry(station_name, old_depl_date, new_depl_date)
+  is_config_table_updated <- update_config_table_entry(station_name, "Depl_Date", old_depl_date, new_depl_date)
   completion_record <- c(completion_record, is_config_table_updated)
 
   return(completion_record)
@@ -167,16 +167,13 @@ check_station_area_info_exists <- function(ss, station_name) {
   return(FALSE)
 }
 
-create_new_station <- function(station_folder_path, ss, station_name, waterbody, county, latitude, longitude, note) {
+create_new_station <- function(stations_folder_path, ss, station_name, waterbody, county, latitude, longitude, note) {
   # Create station folder if it does not exist
-  if (!check_station_folder_exists(station_folder_path)) {
-    # Create station folder
-    create_station_folder(station_folders_path, station_name)
-    message("Station folder created")
-  } 
+  create_station_folder(stations_folder_path, station_name)
+  message("Station folder created")
   # Append row in area info if it does not exist
   sheet_data <- read_sheet(ss, sheet="Area Info")
-  if (!find_area_info_cell(station_name, "station")) {
+  if (!find_area_info_cell(sheet_data, station_name, "station")) {
     new_area_info_row <- c(station_name, waterbody, county, latitude, longitude, note)
     new_area_info_row_df <- as.data.frame(t(new_area_info_row), stringsAsFactors=FALSE)
     sheet_append(string_tracking_sheet, new_area_info_row_df, sheet = "Area Info")
@@ -206,7 +203,7 @@ update_area_info_column <- function(ss, station_name, column_name, new_data, app
 
 # TODO: Newer deployments will not be listed in the configuration table
 # Consider how to manage this (simply ignore and allow user to check manually?)
-update_config_table_entry <- function(station_name, deployment_date, new_value) {
+update_config_table_entry <- function(station_name, column_to_update, deployment_date, new_value) {
   config_table_file_path <- file.path("R:/program_documents/cmp_hiring/intern/2023_rachel/projects/cmp/deployment_change_tracking/deployment_change_code/fake_config_tables")
   config_table_file <- glue("{config_table_file_path}/water_quality_configuration_table.xlsx")
   cb_config_table_file <- glue("{config_table_file_path}/water_quality_cape_breton_configuration.xlsx")
@@ -220,14 +217,14 @@ update_config_table_entry <- function(station_name, deployment_date, new_value) 
     date_formatted_cb_config_data <- cb_config_data %>% 
       mutate(Depl_Date = ymd(Depl_Date))
     updated_cb_config_data <- date_formatted_cb_config_data %>%
-      mutate(Station_Name = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
+      mutate(column_to_update = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
                                       .default = Station_Name))
     write_spreadsheet_data(updated_cb_config_data, cb_config_table_file, "xslx")
   } else if (config_table_entry) {
     date_formatted_config_data <- config_data %>% 
       mutate(Depl_Date = ymd(Depl_Date))
     updated_config_data <- date_formatted_config_data %>%
-      mutate(Station_Name = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
+      mutate(column_to_update = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
                                       .default = Station_Name))
     write_spreadsheet_data(updated_config_data, config_table_file, "xlsx")
   } else {

@@ -173,9 +173,10 @@ archive_log <- function(log_file_path, log_file_name) {
 # if condition to make sure we don't get a warning for trying to create it when it exists
 create_deployment_folder <- function(station_folders_path, station_name, deployment_date) {
   snake_case_station_name <- to_snake_case(station_name)
+  station_folder_path <- glue("{station_folders_path}/{snake_case_station_name}")
   # Confirm that station folders and station folder paths exist
-  if (dir_exists(station_folders_path) && dir_exists(glue("{station_folders_path}/{snake_case_station_name}"))) {
-    new_deployment_folder_path <- glue("{new_station_folder_path}/{snake_case_station_name}_{deployment_date}")
+  if (dir_exists(station_folders_path) && dir_exists(station_folder_path)) {
+    new_deployment_folder_path <- glue("{station_folder_path}/{snake_case_station_name}_{deployment_date}")
     if (!dir.exists(new_deployment_folder_path)) {
       dir.create(new_deployment_folder_path)
       message(glue("Deployment folder created: '{new_deployment_folder_path}'\n"))
