@@ -37,6 +37,7 @@ apply_deployment_change(
 
 apply_deployment_change(
   stations_folder_path = stations_folder_path,
+  string_tracking_sheet = string_tracking_sheet,
   station_name = "Birchy Head",
   depl_date = "2018-02-20", 
   field_to_change = "deployment date", 

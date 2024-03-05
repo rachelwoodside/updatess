@@ -217,15 +217,17 @@ update_config_table_entry <- function(station_name, column_to_update, deployment
     date_formatted_cb_config_data <- cb_config_data %>% 
       mutate(Depl_Date = ymd(Depl_Date))
     updated_cb_config_data <- date_formatted_cb_config_data %>%
-      mutate(column_to_update = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
-                                      .default = Station_Name))
+      mutate_at(.vars = vars(column_to_update), 
+                ~ case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
+                              .default = vars(column_to_update)))
     write_spreadsheet_data(updated_cb_config_data, cb_config_table_file, "xslx")
   } else if (config_table_entry) {
     date_formatted_config_data <- config_data %>% 
       mutate(Depl_Date = ymd(Depl_Date))
     updated_config_data <- date_formatted_config_data %>%
-      mutate(column_to_update = case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
-                                      .default = Station_Name))
+      mutate_at(.vars = vars(column_to_update), 
+                ~ case_when((Station_Name == station_name & Depl_Date == ymd(deployment_date)) ~ new_value,
+                                           .default = vars(column_to_update)))
     write_spreadsheet_data(updated_config_data, config_table_file, "xlsx")
   } else {
     # TODO: Add a check to find similar entries in case of typo?
@@ -293,7 +295,7 @@ update_log_data <- function(deployment_folder_path, column_to_update, old_value,
     mutate(`time of deployment` = ymd_hms(`time of deployment`))
   # TODO: Check that the log value is in fact the provided old value to make sure we are looking at the right column?
   updated_log_data <- formatted_log_data %>% 
-    mutate_at(select(all_of(column_to_update)), ~ replace(., TRUE, new_value))
+    mutate_at(vars(column_to_update), ~ replace(., TRUE, new_value))
   # write new data to log file 
   write_spreadsheet_data(updated_log_data, log_file_name, log_file_extension)
   return(TRUE)
