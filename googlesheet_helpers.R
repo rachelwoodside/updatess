@@ -20,7 +20,10 @@ map_col_names_to_letters <- function(sheet_data) {
   return(col_name_to_letter_map)
 }
 
-find_string_tracking_cell <- function(sheet_data, station_name, depl_date, column_name) {
+find_string_tracking_cell <- function(sheet_data, 
+                                      station_name, 
+                                      depl_date, 
+                                      column_name) {
   # Default value for cell_id is FALSE
   cell_id <- FALSE
   
@@ -31,7 +34,8 @@ find_string_tracking_cell <- function(sheet_data, station_name, depl_date, colum
   # Identify row to edit based on station name and deployment date
   # Note: increment by one to account for the fact that there is a row for
   # column names in the Google sheet but not in the tibble
-  row <- sheet_data %>% with(which(station==station_name & deployment==depl_date)) + 1
+  row <- sheet_data %>% with(which(station==station_name 
+                                   & deployment==depl_date)) + 1
   
   if (!is_empty(row)) {
     # Map the names of the columns to letters as in the Google sheet
@@ -77,7 +81,8 @@ write_google_sheet_cell <- function(ss, sheet_tab, new_data, cell_id, append) {
     )
     # Returned tibble should have no more than 1 row and 1 column (a single cell)
     if (nrow(existing_data) > 1 || ncol(existing_data) > 1) {
-      print("Could not write to Google Sheet. More than one cell was supplied to write_google_sheet_cell().")
+      print("Could not write to Google Sheet. 
+            More than one cell was supplied to write_google_sheet_cell().")
       # Return with a flag for failure
       return(FALSE)
       # Confirming the tibble is not empty)
@@ -88,12 +93,10 @@ write_google_sheet_cell <- function(ss, sheet_tab, new_data, cell_id, append) {
   }
   data_to_write <- as.data.frame(data_to_write, stringsAsFactors=FALSE)
   # Write to the specified cell
-  range_write(
-    ss, 
-    data_to_write, 
-    sheet=sheet_tab, 
-    range=cell_id, 
-    col_names=FALSE, 
-    reformat=FALSE
-  )
+  range_write(ss, 
+              data_to_write, 
+              sheet=sheet_tab, 
+              range=cell_id, 
+              col_names=FALSE, 
+              reformat=FALSE)
 }
